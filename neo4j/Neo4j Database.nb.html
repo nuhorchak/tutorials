@@ -1746,7 +1746,7 @@ summary {
 
 <h1 class="title toc-ignore">Neo4j and R: A network of possibilities</h1>
 <h4 class="author">MAJ Nicholas Uhorchak</h4>
-<h4 class="date">23 February, 2020</h4>
+<h4 class="date">24 February, 2020</h4>
 
 </div>
 
@@ -1755,62 +1755,56 @@ summary {
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>Self described as the “World’s leading graph database, with native graph storage and processing,” <a href="https://neo4j.com/">neo4j</a> is a graph database, with its own native query language, Cypher. Neo4j is extremely flexible, as both nodes and relationships contain attributes in the form of JSON documents.</p>
-<p>Neo4j provides great <a href="https://neo4j.com/graphacademy/online-training/">tutorials</a>, as well as <a href="https://neo4j.com/blog/dark-side-neo4j-worst-practices/">worst practices</a> guide from their website. Although these tutorials are great references, users shouls familiarize themselves with both database and graph network basics prior to delveing deep into this demo.</p>
+<p>Neo4j provides great tutorials <a href="https://neo4j.com/graphacademy/online-training/">here</a> and <a href="https://neo4j-rstats.github.io/user-guide/">here</a>, as well as <a href="https://neo4j.com/blog/dark-side-neo4j-worst-practices/">worst practices</a> guide from their website. Although these tutorials are great references, users shouls familiarize themselves with both database and graph network basics prior to delveing deep into this demo.</p>
 </div>
 <div id="creating-a-database-in-r" class="section level2">
 <h2>Creating a database in R</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVxdWlyZShuZW80cilcbnJlcXVpcmUobWFncml0dHIpXG5gYGAifQ== -->
-<pre class="r"><code>require(neo4r)
-require(magrittr)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShuZW80cilcbmxpYnJhcnkobWFncml0dHIpXG5gYGAifQ== -->
+<pre class="r"><code>library(neo4r)
+library(magrittr)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<ul>
-<li>Please note, that Neo4j native connection protocol is <a href="https://boltprotocol.org/"><em>bolt</em></a> and the desktop client will automatically launch a web browser that way. The <em>current</em> neo4j driver package <a href="https://github.com/neo4j-rstats/neo4r">(neo4R)</a> for R does not currently support bolt.</li>
-</ul>
 <p>For this project, a blank database was created using the neo4j desktop client (add graph function from the neo4j GUI). Once created, the ‘Start’ button must be clicked to move the database to an active state.</p>
 <ul>
-<li>Although provided for this demo, it is good practice not to store database names and passwords in public documents.</li>
+<li><p>Please note, that Neo4j native connection protocol is <a href="https://boltprotocol.org/"><em>bolt</em></a> and the desktop client will automatically launch a web browser that way. The <em>current</em> neo4j driver package <a href="https://github.com/neo4j-rstats/neo4r">(neo4R)</a> for R does not currently support bolt.</p></li>
+<li><p>Although provided for this demo, it is good practice not to store database names and passwords in public documents. The R Studio API provides a good mechanism to prompt for username and password.</p></li>
 </ul>
+<p>First, a connection string is defined, using notation outlined in the reference documents linked above.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDb25uZWN0IHRvIE5lbzRKXG4gXG4gY29uIDwtIG5lbzRqX2FwaSRuZXcodXJsID0gJ2h0dHA6Ly9sb2NhbGhvc3Q6NzQ3NC8nLCB1c2VyID0gJ25lbzRqJywgcGFzc3dvcmQgPSAnbWFya2Rvd24nKVxuY29uJHBpbmcoKSBcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDb25uZWN0IHRvIE5lbzRKXG4gXG4gY29uIDwtIG5lbzRqX2FwaSRuZXcodXJsID0gJ2h0dHA6Ly9sb2NhbGhvc3Q6NzQ3NC8nLCB1c2VyID0gJ25lbzRqJywgcGFzc3dvcmQgPSAnbWFya2Rvd24nKVxuY29uJHBpbmcoKSBcbmNvbiRhY2Nlc3MoKVxuYGBgIn0= -->
 <pre class="r"><code># Connect to Neo4J
  
  con &lt;- neo4j_api$new(url = &#39;http://localhost:7474/&#39;, user = &#39;neo4j&#39;, password = &#39;markdown&#39;)
-con$ping() </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDIwMFxuIn0= -->
-<pre><code>[1] 200</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGF1bmNoX2Nvbl9wYW5lKGNvbilcbmBgYCJ9 -->
-<pre class="r"><code>launch_con_pane(con)</code></pre>
+con$ping() 
+con$access()</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>need to create a database object, and connect to that database to run this query.</p>
+<p>Now that a connection is established to the database, we can begin to use neo4j from R.</p>
+</div>
+<div id="old-query-formats-from-j6-project" class="section level2">
+<h2>OLD QUERY FORMATS FROM J6 PROJECT</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWF0Y2gobjpCcmFuY2gpLChtOkRpdmlzaW9uKVxud2hlcmUgbi5OYW1lID1+ICdKNlMuKicgYW5kIG0uTmFtZSA9ICdKNlMnXG5jcmVhdGUobiktW3I6d29ya3NfZm9yXS0+KG0pXG5yZXR1cm4obiksKG0pXG5gYGAifQ== -->
-<pre class="r"><code>match(n:Branch),(m:Division)
-where n.Name =~ &#39;J6S.*&#39; and m.Name = &#39;J6S&#39;
-create(n)-[r:works_for]-&gt;(m)
-return(n),(m)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiXCJtYXRjaChuOkJyYW5jaCksKG06RGl2aXNpb24pIHdoZXJlIG4uTmFtZSA9fiAnSjZTLionIGFuZCBtLk5hbWUgPSAnSjZTJyBjcmVhdGUobiktW3I6d29ya3NfZm9yXS0+KG0pIHJldHVybihuKSwobSk7XCIgJT4lIGNhbGxfbmVvNGooY29uKSJ9 -->
+<pre class="r"><code>&quot;match(n:Branch),(m:Division) where n.Name =~ &#39;J6S.*&#39; and m.Name = &#39;J6S&#39; create(n)-[r:works_for]-&gt;(m) return(n),(m);&quot; %&gt;% call_neo4j(con)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3JlYXRlKEo2OkRpcmVjdG9yYXRlIHtOYW1lOidKNicsIFRpdGxlOidDaGllZiBJbmZvcm1hdGlvbiBPZmZpY2UnfSlcbmBgYCJ9 -->
-<pre class="r"><code>create(J6:Directorate {Name:&#39;J6&#39;, Title:&#39;Chief Information Office&#39;})</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiXCJjcmVhdGUoSjY6RGlyZWN0b3JhdGUge05hbWU6J0o2JywgVGl0bGU6J0NoaWVmIEluZm9ybWF0aW9uIE9mZmljZSd9KVwiICU+JSBjYWxsX25lbzRqKGNvbikifQ== -->
+<pre class="r"><code>&quot;create(J6:Directorate {Name:&#39;J6&#39;, Title:&#39;Chief Information Office&#39;})&quot; %&gt;% call_neo4j(con)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuTUFUQ0ggKG4geyBOYW1lOiAnSjYzNicgfSlcblNFVCBuLlRpdGxlID0gdG9TdHJpbmcoJ1NhdGVsbGl0ZSwgU3BlY3RydW0gYW5kIFRlcnJlc3RyaWFsJylcblJFVFVSTiBuLm5hbWUsIG4uVGl0bGVcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjpbIk1BVENIIChuIHsgTmFtZTogJ0o2MzYnIH0pIiwiU0VUIG4uVGl0bGUgPSB0b1N0cmluZygnU2F0ZWxsaXRlLCBTcGVjdHJ1bSBhbmQgVGVycmVzdHJpYWwnKSIsIlJFVFVSTiBuLm5hbWUsIG4uVGl0bGUiXX0= -->
 <pre class="r"><code>MATCH (n { Name: &#39;J636&#39; })
 SET n.Title = toString(&#39;Satellite, Spectrum and Terrestrial&#39;)
 RETURN n.name, n.Title</code></pre>
@@ -1818,9 +1812,29 @@ RETURN n.name, n.Title</code></pre>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbIm1hdGNoKG46RGlyZWN0b3JhdGUpIiwiIHdoZXJlIG4uTmFtZSA9ICdKNiciLCIgc2V0IG4uR3JhZGUgPSAnQkcvU0VTMSciLCIgcmV0dXJuKG4pIl19 -->
+<pre class="r"><code>match(n:Directorate)
+ where n.Name = &#39;J6&#39;
+ set n.Grade = &#39;BG/SES1&#39;
+ return(n)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbIm1hdGNoKG46RGl2aXNpb24pIiwiIHdoZXJlIG4uTmFtZSA9fiAnSjYuKicgYW5kIG5vdCBuLk5hbWUgPSAnSjY0JyIsIiBzZXQgbi5HcmFkZSA9ICdPNi9HUy0xNSciLCIgcmV0dXJuKG4pIl19 -->
+<pre class="r"><code>match(n:Division)
+ where n.Name =~ &#39;J6.*&#39; and not n.Name = &#39;J64&#39;
+ set n.Grade = &#39;O6/GS-15&#39;
+ return(n)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIk5lbzRqIGFuZCBSOiBBIG5ldHdvcmsgb2YgcG9zc2liaWxpdGllcyINCmF1dGhvcjogIk1BSiBOaWNob2xhcyBVaG9yY2hhayINCmRhdGU6ICJgciBmb3JtYXQoU3lzLnRpbWUoKSwgJyVkICVCLCAlWScpYCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQojIyBJbnRyb2R1Y3Rpb24NClNlbGYgZGVzY3JpYmVkIGFzIHRoZSAiV29ybGQncyBsZWFkaW5nIGdyYXBoIGRhdGFiYXNlLCB3aXRoIG5hdGl2ZSBncmFwaCBzdG9yYWdlIGFuZCBwcm9jZXNzaW5nLCIgW25lbzRqXShodHRwczovL25lbzRqLmNvbS8pIGlzIGEgZ3JhcGggZGF0YWJhc2UsIHdpdGggaXRzIG93biBuYXRpdmUgcXVlcnkgbGFuZ3VhZ2UsIEN5cGhlci4gTmVvNGogaXMgZXh0cmVtZWx5IGZsZXhpYmxlLCBhcyBib3RoIG5vZGVzIGFuZCByZWxhdGlvbnNoaXBzIGNvbnRhaW4gYXR0cmlidXRlcyBpbiB0aGUgZm9ybSBvZiBKU09OIGRvY3VtZW50cy4gICANCg0KTmVvNGogcHJvdmlkZXMgZ3JlYXQgW3R1dG9yaWFsc10oaHR0cHM6Ly9uZW80ai5jb20vZ3JhcGhhY2FkZW15L29ubGluZS10cmFpbmluZy8pLCBhcyB3ZWxsIGFzIFt3b3JzdCBwcmFjdGljZXNdKGh0dHBzOi8vbmVvNGouY29tL2Jsb2cvZGFyay1zaWRlLW5lbzRqLXdvcnN0LXByYWN0aWNlcy8pIGd1aWRlIGZyb20gdGhlaXIgd2Vic2l0ZS4gIEFsdGhvdWdoIHRoZXNlIHR1dG9yaWFscyBhcmUgZ3JlYXQgcmVmZXJlbmNlcywgdXNlcnMgc2hvdWxzIGZhbWlsaWFyaXplIHRoZW1zZWx2ZXMgd2l0aCBib3RoIGRhdGFiYXNlIGFuZCBncmFwaCBuZXR3b3JrIGJhc2ljcyBwcmlvciB0byBkZWx2ZWluZyBkZWVwIGludG8gdGhpcyBkZW1vLg0KDQojIyBDcmVhdGluZyBhIGRhdGFiYXNlIGluIFINCg0KYGBge3J9DQpyZXF1aXJlKG5lbzRyKQ0KcmVxdWlyZShtYWdyaXR0cikNCmBgYA0KDQotIFBsZWFzZSBub3RlLCB0aGF0IE5lbzRqIG5hdGl2ZSBjb25uZWN0aW9uIHByb3RvY29sIGlzIFsqYm9sdCpdKGh0dHBzOi8vYm9sdHByb3RvY29sLm9yZy8pIGFuZCB0aGUgZGVza3RvcCBjbGllbnQgd2lsbCBhdXRvbWF0aWNhbGx5IGxhdW5jaCBhIHdlYiBicm93c2VyIHRoYXQgd2F5LiAgVGhlICpjdXJyZW50KiBuZW80aiBkcml2ZXIgcGFja2FnZSBbKG5lbzRSKV0oaHR0cHM6Ly9naXRodWIuY29tL25lbzRqLXJzdGF0cy9uZW80cikgZm9yIFIgZG9lcyBub3QgY3VycmVudGx5IHN1cHBvcnQgYm9sdC4NCg0KRm9yIHRoaXMgcHJvamVjdCwgYSBibGFuayBkYXRhYmFzZSB3YXMgY3JlYXRlZCB1c2luZyB0aGUgbmVvNGogZGVza3RvcCBjbGllbnQgKGFkZCBncmFwaCBmdW5jdGlvbiBmcm9tIHRoZSBuZW80aiBHVUkpLiAgT25jZSBjcmVhdGVkLCB0aGUgJ1N0YXJ0JyBidXR0b24gbXVzdCBiZSBjbGlja2VkIHRvIG1vdmUgdGhlIGRhdGFiYXNlIHRvIGFuIGFjdGl2ZSBzdGF0ZS4NCg0KLSBBbHRob3VnaCBwcm92aWRlZCBmb3IgdGhpcyBkZW1vLCBpdCBpcyBnb29kIHByYWN0aWNlIG5vdCB0byBzdG9yZSBkYXRhYmFzZSBuYW1lcyBhbmQgcGFzc3dvcmRzIGluIHB1YmxpYyBkb2N1bWVudHMuDQpgYGB7cn0NCiMgQ29ubmVjdCB0byBOZW80Sg0KIA0KIGNvbiA8LSBuZW80al9hcGkkbmV3KHVybCA9ICdodHRwOi8vbG9jYWxob3N0Ojc0NzQvJywgdXNlciA9ICduZW80aicsIHBhc3N3b3JkID0gJ21hcmtkb3duJykNCmNvbiRwaW5nKCkgDQpsYXVuY2hfY29uX3BhbmUoY29uKQ0KYGBgDQoNCg0KbmVlZCB0byBjcmVhdGUgYSBkYXRhYmFzZSBvYmplY3QsIGFuZCBjb25uZWN0IHRvIHRoYXQgZGF0YWJhc2UgdG8gcnVuIHRoaXMgcXVlcnkuDQoNCmBgYHtyfQ0KbWF0Y2gobjpCcmFuY2gpLChtOkRpdmlzaW9uKQ0Kd2hlcmUgbi5OYW1lID1+ICdKNlMuKicgYW5kIG0uTmFtZSA9ICdKNlMnDQpjcmVhdGUobiktW3I6d29ya3NfZm9yXS0+KG0pDQpyZXR1cm4obiksKG0pDQpgYGANCg0KYGBge3J9DQpjcmVhdGUoSjY6RGlyZWN0b3JhdGUge05hbWU6J0o2JywgVGl0bGU6J0NoaWVmIEluZm9ybWF0aW9uIE9mZmljZSd9KQ0KYGBgDQoNCmBgYHtyfQ0KTUFUQ0ggKG4geyBOYW1lOiAnSjYzNicgfSkNClNFVCBuLlRpdGxlID0gdG9TdHJpbmcoJ1NhdGVsbGl0ZSwgU3BlY3RydW0gYW5kIFRlcnJlc3RyaWFsJykNClJFVFVSTiBuLm5hbWUsIG4uVGl0bGUNCmBgYA0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIk5lbzRqIGFuZCBSOiBBIG5ldHdvcmsgb2YgcG9zc2liaWxpdGllcyINCmF1dGhvcjogIk1BSiBOaWNob2xhcyBVaG9yY2hhayINCmRhdGU6ICJgciBmb3JtYXQoU3lzLnRpbWUoKSwgJyVkICVCLCAlWScpYCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQojIyBJbnRyb2R1Y3Rpb24NClNlbGYgZGVzY3JpYmVkIGFzIHRoZSAiV29ybGQncyBsZWFkaW5nIGdyYXBoIGRhdGFiYXNlLCB3aXRoIG5hdGl2ZSBncmFwaCBzdG9yYWdlIGFuZCBwcm9jZXNzaW5nLCIgW25lbzRqXShodHRwczovL25lbzRqLmNvbS8pIGlzIGEgZ3JhcGggZGF0YWJhc2UsIHdpdGggaXRzIG93biBuYXRpdmUgcXVlcnkgbGFuZ3VhZ2UsIEN5cGhlci4gTmVvNGogaXMgZXh0cmVtZWx5IGZsZXhpYmxlLCBhcyBib3RoIG5vZGVzIGFuZCByZWxhdGlvbnNoaXBzIGNvbnRhaW4gYXR0cmlidXRlcyBpbiB0aGUgZm9ybSBvZiBKU09OIGRvY3VtZW50cy4gICANCg0KTmVvNGogcHJvdmlkZXMgZ3JlYXQgdHV0b3JpYWxzIFtoZXJlXShodHRwczovL25lbzRqLmNvbS9ncmFwaGFjYWRlbXkvb25saW5lLXRyYWluaW5nLykgYW5kIFtoZXJlXShodHRwczovL25lbzRqLXJzdGF0cy5naXRodWIuaW8vdXNlci1ndWlkZS8pLCBhcyB3ZWxsIGFzIFt3b3JzdCBwcmFjdGljZXNdKGh0dHBzOi8vbmVvNGouY29tL2Jsb2cvZGFyay1zaWRlLW5lbzRqLXdvcnN0LXByYWN0aWNlcy8pIGd1aWRlIGZyb20gdGhlaXIgd2Vic2l0ZS4gIEFsdGhvdWdoIHRoZXNlIHR1dG9yaWFscyBhcmUgZ3JlYXQgcmVmZXJlbmNlcywgdXNlcnMgc2hvdWxzIGZhbWlsaWFyaXplIHRoZW1zZWx2ZXMgd2l0aCBib3RoIGRhdGFiYXNlIGFuZCBncmFwaCBuZXR3b3JrIGJhc2ljcyBwcmlvciB0byBkZWx2ZWluZyBkZWVwIGludG8gdGhpcyBkZW1vLg0KDQojIyBDcmVhdGluZyBhIGRhdGFiYXNlIGluIFINCg0KYGBge3J9DQpsaWJyYXJ5KG5lbzRyKQ0KbGlicmFyeShtYWdyaXR0cikNCmBgYA0KDQpGb3IgdGhpcyBwcm9qZWN0LCBhIGJsYW5rIGRhdGFiYXNlIHdhcyBjcmVhdGVkIHVzaW5nIHRoZSBuZW80aiBkZXNrdG9wIGNsaWVudCAoYWRkIGdyYXBoIGZ1bmN0aW9uIGZyb20gdGhlIG5lbzRqIEdVSSkuICBPbmNlIGNyZWF0ZWQsIHRoZSAnU3RhcnQnIGJ1dHRvbiBtdXN0IGJlIGNsaWNrZWQgdG8gbW92ZSB0aGUgZGF0YWJhc2UgdG8gYW4gYWN0aXZlIHN0YXRlLg0KDQotIFBsZWFzZSBub3RlLCB0aGF0IE5lbzRqIG5hdGl2ZSBjb25uZWN0aW9uIHByb3RvY29sIGlzIFsqYm9sdCpdKGh0dHBzOi8vYm9sdHByb3RvY29sLm9yZy8pIGFuZCB0aGUgZGVza3RvcCBjbGllbnQgd2lsbCBhdXRvbWF0aWNhbGx5IGxhdW5jaCBhIHdlYiBicm93c2VyIHRoYXQgd2F5LiAgVGhlICpjdXJyZW50KiBuZW80aiBkcml2ZXIgcGFja2FnZSBbKG5lbzRSKV0oaHR0cHM6Ly9naXRodWIuY29tL25lbzRqLXJzdGF0cy9uZW80cikgZm9yIFIgZG9lcyBub3QgY3VycmVudGx5IHN1cHBvcnQgYm9sdC4NCg0KLSBBbHRob3VnaCBwcm92aWRlZCBmb3IgdGhpcyBkZW1vLCBpdCBpcyBnb29kIHByYWN0aWNlIG5vdCB0byBzdG9yZSBkYXRhYmFzZSBuYW1lcyBhbmQgcGFzc3dvcmRzIGluIHB1YmxpYyBkb2N1bWVudHMuICBUaGUgUiBTdHVkaW8gQVBJIHByb3ZpZGVzIGEgZ29vZCBtZWNoYW5pc20gdG8gcHJvbXB0IGZvciB1c2VybmFtZSBhbmQgcGFzc3dvcmQuDQoNCkZpcnN0LCBhIGNvbm5lY3Rpb24gc3RyaW5nIGlzIGRlZmluZWQsIHVzaW5nIG5vdGF0aW9uIG91dGxpbmVkIGluIHRoZSByZWZlcmVuY2UgZG9jdW1lbnRzIGxpbmtlZCBhYm92ZS4NCmBgYHtyfQ0KIyBDb25uZWN0IHRvIE5lbzRKDQogDQogY29uIDwtIG5lbzRqX2FwaSRuZXcodXJsID0gJ2h0dHA6Ly9sb2NhbGhvc3Q6NzQ3NC8nLCB1c2VyID0gJ25lbzRqJywgcGFzc3dvcmQgPSAnbWFya2Rvd24nKQ0KY29uJHBpbmcoKSANCmNvbiRhY2Nlc3MoKQ0KYGBgDQoNCk5vdyB0aGF0IGEgY29ubmVjdGlvbiBpcyBlc3RhYmxpc2hlZCB0byB0aGUgZGF0YWJhc2UsIHdlIGNhbiBiZWdpbiB0byB1c2UgbmVvNGogZnJvbSBSLiAgDQoNCiMjIE9MRCBRVUVSWSBGT1JNQVRTIEZST00gSjYgUFJPSkVDVA0KDQpgYGB7ciBldmFsPUZBTFNFfQ0KIm1hdGNoKG46QnJhbmNoKSwobTpEaXZpc2lvbikgd2hlcmUgbi5OYW1lID1+ICdKNlMuKicgYW5kIG0uTmFtZSA9ICdKNlMnIGNyZWF0ZShuKS1bcjp3b3Jrc19mb3JdLT4obSkgcmV0dXJuKG4pLChtKTsiICU+JSBjYWxsX25lbzRqKGNvbikNCmBgYA0KDQpgYGB7ciBldmFsPUZBTFNFfQ0KImNyZWF0ZShKNjpEaXJlY3RvcmF0ZSB7TmFtZTonSjYnLCBUaXRsZTonQ2hpZWYgSW5mb3JtYXRpb24gT2ZmaWNlJ30pIiAlPiUgY2FsbF9uZW80aihjb24pDQpgYGANCg0KYGBge3IgZXZhbD1GQUxTRX0NCk1BVENIIChuIHsgTmFtZTogJ0o2MzYnIH0pDQpTRVQgbi5UaXRsZSA9IHRvU3RyaW5nKCdTYXRlbGxpdGUsIFNwZWN0cnVtIGFuZCBUZXJyZXN0cmlhbCcpDQpSRVRVUk4gbi5uYW1lLCBuLlRpdGxlDQpgYGANCg0KYGBge3IgZXZhbD1GQUxTRX0NCm1hdGNoKG46RGlyZWN0b3JhdGUpDQogd2hlcmUgbi5OYW1lID0gJ0o2Jw0KIHNldCBuLkdyYWRlID0gJ0JHL1NFUzEnDQogcmV0dXJuKG4pDQpgYGANCg0KYGBge3IgZXZhbD1GQUxTRX0NCm1hdGNoKG46RGl2aXNpb24pDQogd2hlcmUgbi5OYW1lID1+ICdKNi4qJyBhbmQgbm90IG4uTmFtZSA9ICdKNjQnDQogc2V0IG4uR3JhZGUgPSAnTzYvR1MtMTUnDQogcmV0dXJuKG4pDQpgYGANCg0K</div>
 
 
 

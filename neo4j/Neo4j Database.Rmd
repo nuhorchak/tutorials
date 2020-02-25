@@ -7,45 +7,59 @@ output: html_notebook
 ## Introduction
 Self described as the "World's leading graph database, with native graph storage and processing," [neo4j](https://neo4j.com/) is a graph database, with its own native query language, Cypher. Neo4j is extremely flexible, as both nodes and relationships contain attributes in the form of JSON documents.   
 
-Neo4j provides great [tutorials](https://neo4j.com/graphacademy/online-training/), as well as [worst practices](https://neo4j.com/blog/dark-side-neo4j-worst-practices/) guide from their website.  Although these tutorials are great references, users shouls familiarize themselves with both database and graph network basics prior to delveing deep into this demo.
+Neo4j provides great tutorials [here](https://neo4j.com/graphacademy/online-training/) and [here](https://neo4j-rstats.github.io/user-guide/), as well as [worst practices](https://neo4j.com/blog/dark-side-neo4j-worst-practices/) guide from their website.  Although these tutorials are great references, users shouls familiarize themselves with both database and graph network basics prior to delveing deep into this demo.
 
 ## Creating a database in R
 
 ```{r}
-require(neo4r)
-require(magrittr)
+library(neo4r)
+library(magrittr)
 ```
-
-- Please note, that Neo4j native connection protocol is [*bolt*](https://boltprotocol.org/) and the desktop client will automatically launch a web browser that way.  The *current* neo4j driver package [(neo4R)](https://github.com/neo4j-rstats/neo4r) for R does not currently support bolt.
 
 For this project, a blank database was created using the neo4j desktop client (add graph function from the neo4j GUI).  Once created, the 'Start' button must be clicked to move the database to an active state.
 
-- Although provided for this demo, it is good practice not to store database names and passwords in public documents.
+- Please note, that Neo4j native connection protocol is [*bolt*](https://boltprotocol.org/) and the desktop client will automatically launch a web browser that way.  The *current* neo4j driver package [(neo4R)](https://github.com/neo4j-rstats/neo4r) for R does not currently support bolt.
+
+- Although provided for this demo, it is good practice not to store database names and passwords in public documents.  The R Studio API provides a good mechanism to prompt for username and password.
+
+First, a connection string is defined, using notation outlined in the reference documents linked above.
 ```{r}
 # Connect to Neo4J
  
  con <- neo4j_api$new(url = 'http://localhost:7474/', user = 'neo4j', password = 'markdown')
 con$ping() 
-launch_con_pane(con)
+con$access()
 ```
 
+Now that a connection is established to the database, we can begin to use neo4j from R.  
 
-need to create a database object, and connect to that database to run this query.
+## OLD QUERY FORMATS FROM J6 PROJECT
 
-```{r}
-match(n:Branch),(m:Division)
-where n.Name =~ 'J6S.*' and m.Name = 'J6S'
-create(n)-[r:works_for]->(m)
-return(n),(m)
+```{r eval=FALSE}
+"match(n:Branch),(m:Division) where n.Name =~ 'J6S.*' and m.Name = 'J6S' create(n)-[r:works_for]->(m) return(n),(m);" %>% call_neo4j(con)
 ```
 
-```{r}
-create(J6:Directorate {Name:'J6', Title:'Chief Information Office'})
+```{r eval=FALSE}
+"create(J6:Directorate {Name:'J6', Title:'Chief Information Office'})" %>% call_neo4j(con)
 ```
 
-```{r}
+```{r eval=FALSE}
 MATCH (n { Name: 'J636' })
 SET n.Title = toString('Satellite, Spectrum and Terrestrial')
 RETURN n.name, n.Title
+```
+
+```{r eval=FALSE}
+match(n:Directorate)
+ where n.Name = 'J6'
+ set n.Grade = 'BG/SES1'
+ return(n)
+```
+
+```{r eval=FALSE}
+match(n:Division)
+ where n.Name =~ 'J6.*' and not n.Name = 'J64'
+ set n.Grade = 'O6/GS-15'
+ return(n)
 ```
 
