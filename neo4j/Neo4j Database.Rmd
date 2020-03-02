@@ -116,7 +116,7 @@ Please note, that although many relationships are captured, this is not an all i
 
 - Note, similar to the creation of nodes, eges are also JSON documents, and can therefore store properties as well as labels.
 
-- Note - relationships, although defined by direction in the create statement, can inherentlybe travsersed in a bi-directional manner with cypher, so therefore 'if one implies the other' is true.
+- Note - relationships, although defined by direction in the create statement, can inherentlybe travsersed in a bi-directional manner with cypher, so therefore 'if one implies the other' is true. See [this](https://graphaware.com/neo4j/2013/10/11/neo4j-bidirectional-relationships.html) for reference.  This fact does not necessarily imply however, that some explicit definition (think call network) is not ever necessary.
 
 - Note - the <> operator is the logical 'not' or '!' operator.
 
