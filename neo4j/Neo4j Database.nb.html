@@ -1746,7 +1746,7 @@ summary {
 
 <h1 class="title toc-ignore">Neo4j and R: A network of possibilities</h1>
 <h4 class="author">MAJ Nicholas Uhorchak</h4>
-<h4 class="date">24 February, 2020</h4>
+<h4 class="date">02 March, 2020</h4>
 
 </div>
 
@@ -1768,6 +1768,7 @@ library(magrittr)</code></pre>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>For this project, a blank database was created using the neo4j desktop client (add graph function from the neo4j GUI). Once created, the ‘Start’ button must be clicked to move the database to an active state.</p>
+<p>The database will model the hit comedy TV show ‘The Office’ and all references will revolve around the main cast of characters, found <a href="https://en.wikipedia.org/wiki/The_Office_(American_TV_series)#Characters">here</a>. Relationships from the show are referenced both in the previous link as well as <a href="https://screenrant.com/the-office-couples-ranked-best/">here</a>.</p>
 <ul>
 <li><p>Please note, that Neo4j native connection protocol is <a href="https://boltprotocol.org/"><em>bolt</em></a> and the desktop client will automatically launch a web browser that way. The <em>current</em> neo4j driver package <a href="https://github.com/neo4j-rstats/neo4r">(neo4R)</a> for R does not currently support bolt.</p></li>
 <li><p>Although provided for this demo, it is good practice not to store database names and passwords in public documents. The R Studio API provides a good mechanism to prompt for username and password.</p></li>
@@ -1775,66 +1776,235 @@ library(magrittr)</code></pre>
 <p>First, a connection string is defined, using notation outlined in the reference documents linked above.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDb25uZWN0IHRvIE5lbzRKXG4gXG4gY29uIDwtIG5lbzRqX2FwaSRuZXcodXJsID0gJ2h0dHA6Ly9sb2NhbGhvc3Q6NzQ3NC8nLCB1c2VyID0gJ25lbzRqJywgcGFzc3dvcmQgPSAnbWFya2Rvd24nKVxuY29uJHBpbmcoKSBcbmNvbiRhY2Nlc3MoKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDb25uZWN0IHRvIE5lbzRKXG5cbmNvbiA8LSBuZW80al9hcGkkbmV3KHVybCA9IFwiaHR0cDovL2xvY2FsaG9zdDo3NDc0L1wiLCB1c2VyID0gXCJuZW80alwiLCBwYXNzd29yZCA9IFwibWFya2Rvd25cIilcbmNvbiRwaW5nKClcbmBgYCJ9 -->
 <pre class="r"><code># Connect to Neo4J
- 
- con &lt;- neo4j_api$new(url = &#39;http://localhost:7474/&#39;, user = &#39;neo4j&#39;, password = &#39;markdown&#39;)
-con$ping() 
-con$access()</code></pre>
+
+con &lt;- neo4j_api$new(url = &quot;http://localhost:7474/&quot;, user = &quot;neo4j&quot;, password = &quot;markdown&quot;)
+con$ping()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDIwMFxuIn0= -->
+<pre><code>[1] 200</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29uJGFjY2VzcygpXG5gYGAifQ== -->
+<pre class="r"><code>con$access()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiJHVybFxuWzFdIFwiaHR0cDovL2xvY2FsaG9zdDo3NDc0XCJcblxuJHVzZXJcblsxXSBcIm5lbzRqXCJcbiJ9 -->
+<pre><code>$url
+[1] &quot;http://localhost:7474&quot;
+
+$user
+[1] &quot;neo4j&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now that a connection is established to the database, we can begin to use neo4j from R. All future calls from R to the database will utilize ‘call_neo4j(con)’ to connect R to the DB using the connection string.</p>
+<div id="method-1---manual" class="section level3">
+<h3>Method 1 - Manual</h3>
+<p>This method entails building the database from <em>scratch</em>, using cypher queries to build both nodes and edges.</p>
+<p>Everything in neo4j is stored as a JSON document, both nodes and edges. Creating a database from scratch entials defining nodes, edges and all the properties for each that will be contained in the respective JSON documents.</p>
+<div id="create-nodes" class="section level4">
+<h4>Create nodes</h4>
+<p>Creating nodes using cypher is straightforward, however care must be taken to ensure that consistency between labels is ensured (case sensitivity). Cypher commands can be found <a href="https://neo4j.com/docs/cypher-refcard/current/">here</a>.</p>
+<p>We will begin by creating the main characters from the show. For each character, the node label, n, will reference the major section where they work, and supporting information will be entered as properties. For conformity, each node will be assigned the same set of properties.</p>
+<div id="management" class="section level5">
+<h5>Management</h5>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJjcmVhdGUoOk1hbmFnZW1lbnQge0NoYXJhY3Rlcl9uYW1lOiAnTWljaGFlbCBTY290dCcsIFBsYXllZF9ieTogJ1N0ZXZlIENhcnJlbGwnLCBHZW5kZXI6ICdNYWxlJywgUG9zaXRpb246ICdSZWdpb25hbCBNYW5hZ2VyJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5cblwiY3JlYXRlKDpNYW5hZ2VtZW50IHtDaGFyYWN0ZXJfbmFtZTogJ1BhbSBCZWVzbHknLCBQbGF5ZWRfYnk6ICdKZW5uYSBGaXNjaGVyJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdSZWNlcHRpb25pc3QnLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KVwiICU+JSBcbiAgICBjYWxsX25lbzRqKGNvbilcblxuXCJjcmVhdGUoOk1hbmFnZW1lbnQge0NoYXJhY3Rlcl9uYW1lOiAnQm9iIFZhbmNlJywgUGxheWVkX2J5OiAnUm9iZXJ0IFNoYWVmZXInLCBHZW5kZXI6ICdNYWxlJywgUG9zaXRpb246ICdPd25lciwgVmFuY2UgUmVmcmlnZXJhdGlvbjsgU2NyYW50b24gTW9iIEJvc3MoPyknLCBMb2NhdGlvbjogJ1NjcmFudG9uICcsIENvbXBhbnk6ICdWYW5jZSBSZWZyaWdlcmF0aW9uJ30pXCIgJT4lIFxuICAgIGNhbGxfbmVvNGooY29uKVxuXG5cImNyZWF0ZSg6TWFuYWdlbWVudCB7Q2hhcmFjdGVyX25hbWU6ICdKYW4gTGV2aW5zb24nLCBQbGF5ZWRfYnk6ICdNZWxvcmEgSGFyZGluJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdWUCwgUmVnaW9uYWwgU2FsZXMnLCBMb2NhdGlvbjogJ05vcnRoZWFzdCBSZWdpb24nLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5cblwiY3JlYXRlKDpNYW5hZ2VtZW50IHtDaGFyYWN0ZXJfbmFtZTogJ0VyaW4gSGFubm9uJywgUGxheWVkX2J5OiAnRWxsaWUgS2VtcGVyJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdSZWNlcHRpb25pc3QnLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KVwiICU+JSBcbiAgICBjYWxsX25lbzRqKGNvbilcbmBgYCJ9 -->
+<pre class="r"><code>&quot;create(:Management {Character_name: &#39;Michael Scott&#39;, Played_by: &#39;Steve Carrell&#39;, Gender: &#39;Male&#39;, Position: &#39;Regional Manager&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Management {Character_name: &#39;Pam Beesly&#39;, Played_by: &#39;Jenna Fischer&#39;, Gender: &#39;Female&#39;, Position: &#39;Receptionist&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Management {Character_name: &#39;Bob Vance&#39;, Played_by: &#39;Robert Shaefer&#39;, Gender: &#39;Male&#39;, Position: &#39;Owner, Vance Refrigeration; Scranton Mob Boss(?)&#39;, Location: &#39;Scranton &#39;, Company: &#39;Vance Refrigeration&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Management {Character_name: &#39;Jan Levinson&#39;, Played_by: &#39;Melora Hardin&#39;, Gender: &#39;Female&#39;, Position: &#39;VP, Regional Sales&#39;, Location: &#39;Northeast Region&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Management {Character_name: &#39;Erin Hannon&#39;, Played_by: &#39;Ellie Kemper&#39;, Gender: &#39;Female&#39;, Position: &#39;Receptionist&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Now that a connection is established to the database, we can begin to use neo4j from R.</p>
 </div>
-<div id="old-query-formats-from-j6-project" class="section level2">
-<h2>OLD QUERY FORMATS FROM J6 PROJECT</h2>
+<div id="accounting" class="section level5">
+<h5>Accounting</h5>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiXCJtYXRjaChuOkJyYW5jaCksKG06RGl2aXNpb24pIHdoZXJlIG4uTmFtZSA9fiAnSjZTLionIGFuZCBtLk5hbWUgPSAnSjZTJyBjcmVhdGUobiktW3I6d29ya3NfZm9yXS0+KG0pIHJldHVybihuKSwobSk7XCIgJT4lIGNhbGxfbmVvNGooY29uKSJ9 -->
-<pre class="r"><code>&quot;match(n:Branch),(m:Division) where n.Name =~ &#39;J6S.*&#39; and m.Name = &#39;J6S&#39; create(n)-[r:works_for]-&gt;(m) return(n),(m);&quot; %&gt;% call_neo4j(con)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJjcmVhdGUoOkFjY291bnRpbmcge0NoYXJhY3Rlcl9uYW1lOiAnQW5nZWxhIE1hcnRpbicsIFBsYXllZF9ieTogJ0FuZ2VsYSBLaW5zZXknLCBHZW5kZXI6ICdGZW1hbGUnLCBQb3NpdGlvbjogJ0FjY291bnRhbnQnLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KVwiICU+JSBcbiAgICBjYWxsX25lbzRqKGNvbilcblxuXCJjcmVhdGUoOkFjY291bnRpbmcge0NoYXJhY3Rlcl9uYW1lOiAnS2V2aW4gTWFsb25lJywgUGxheWVkX2J5OiAnQnJpYW4gQnVtZ2FydG5lcicsIEdlbmRlcjogJ0ZlbWFsZScsIFBvc2l0aW9uOiAnQWNjb3VudGFudCcsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pXCIgJT4lIFxuICAgIGNhbGxfbmVvNGooY29uKVxuXG5cImNyZWF0ZSg6QWNjb3VudGluZyB7Q2hhcmFjdGVyX25hbWU6ICdPc2NhciBNYXRyaW5leicsIFBsYXllZF9ieTogJ09zY2FyIE51bmV6JywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnQWNjb3VudGFudCcsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pXCIgJT4lIFxuICAgIGNhbGxfbmVvNGooY29uKVxuXG5cImNyZWF0ZSg6QWNjb3VudGluZyB7Q2hhcmFjdGVyX25hbWU6ICdTdGFubGV5IEh1ZHNvbicsIFBsYXllZF9ieTogJ1JvYmVydCBSLiBTaGFmZXInLCBHZW5kZXI6ICdNYWxlJywgUG9zaXRpb246ICdBY2NvdW50YW50JywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5gYGAifQ== -->
+<pre class="r"><code>&quot;create(:Accounting {Character_name: &#39;Angela Martin&#39;, Played_by: &#39;Angela Kinsey&#39;, Gender: &#39;Female&#39;, Position: &#39;Accountant&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Accounting {Character_name: &#39;Kevin Malone&#39;, Played_by: &#39;Brian Bumgartner&#39;, Gender: &#39;Female&#39;, Position: &#39;Accountant&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Accounting {Character_name: &#39;Oscar Matrinez&#39;, Played_by: &#39;Oscar Nunez&#39;, Gender: &#39;Male&#39;, Position: &#39;Accountant&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Accounting {Character_name: &#39;Stanley Hudson&#39;, Played_by: &#39;Robert R. Shafer&#39;, Gender: &#39;Male&#39;, Position: &#39;Accountant&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="customer-service" class="section level5">
+<h5>Customer Service</h5>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJjcmVhdGUoOkN1c3RvbWVyX1NlcnZpY2Uge0NoYXJhY3Rlcl9uYW1lOiAnS2VsbHkgS2Fwb29yJywgUGxheWVkX2J5OiAnTWluZHkgS2FsaW5nJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdDdXN0b21lciBzZXJ2aWNlIHJlcHJlc2VudGF0aXZlJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5cblwiY3JlYXRlKDpDdXN0b21lcl9TZXJ2aWNlIHtDaGFyYWN0ZXJfbmFtZTogJ01lcmVkaXRoIFBhbG1lcicsIFBsYXllZF9ieTogJ0thdGUgRmxhbm5lcnknLCBHZW5kZXI6ICdGZW1hbGUnLCBQb3NpdGlvbjogJ1N1cHBsaWVyIHJlbGF0aW9ucycsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pXCIgJT4lIFxuICAgIGNhbGxfbmVvNGooY29uKVxuYGBgIn0= -->
+<pre class="r"><code>&quot;create(:Customer_Service {Character_name: &#39;Kelly Kapoor&#39;, Played_by: &#39;Mindy Kaling&#39;, Gender: &#39;Female&#39;, Position: &#39;Customer service representative&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Customer_Service {Character_name: &#39;Meredith Palmer&#39;, Played_by: &#39;Kate Flannery&#39;, Gender: &#39;Female&#39;, Position: &#39;Supplier relations&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="human-resources" class="section level5">
+<h5>Human Resources</h5>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJjcmVhdGUoOkh1bWFuX1Jlc291cmNlcyB7Q2hhcmFjdGVyX25hbWU6ICdUb2J5IEZsZW5kZXJzb24nLCBQbGF5ZWRfYnk6ICdQYXVsIExpZWJlcnN0ZWluJywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnSHVtYW4gUmVzb3VyY2VzIHJlcHJlc2VudGF0aXZlJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5gYGAifQ== -->
+<pre class="r"><code>&quot;create(:Human_Resources {Character_name: &#39;Toby Flenderson&#39;, Played_by: &#39;Paul Lieberstein&#39;, Gender: &#39;Male&#39;, Position: &#39;Human Resources representative&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="quality-assurance" class="section level5">
+<h5>Quality Assurance</h5>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJjcmVhdGUoOlF1YWxpdHlfQXNzdXJhbmNlIHtDaGFyYWN0ZXJfbmFtZTogJ0NyZWVkIEJyYXR0b24nLCBQbGF5ZWRfYnk6ICdDcmVlZCBCcmF0dG9uJywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnRGlyZWN0b3IsIFF1YWxpdHkgQXNzdXJhbmNlJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5gYGAifQ== -->
+<pre class="r"><code>&quot;create(:Quality_Assurance {Character_name: &#39;Creed Bratton&#39;, Played_by: &#39;Creed Bratton&#39;, Gender: &#39;Male&#39;, Position: &#39;Director, Quality Assurance&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="sales" class="section level5">
+<h5>Sales</h5>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJjcmVhdGUoOlNhbGVzIHtDaGFyYWN0ZXJfbmFtZTogJ0R3aWdodCBTY2hydXRlJywgUGxheWVkX2J5OiAnUmlhbm4gV2lsc29uJywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnU2FsZXNtYW4gYW5kIEFzc2lzdGFudCBSZWdpb25hbCBNYW5hZ2VyJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5cblwiY3JlYXRlKDpTYWxlcyB7Q2hhcmFjdGVyX25hbWU6ICdKaW0gSGFscGJlcnQnLCBQbGF5ZWRfYnk6ICdKb2huIEtyYXNpbnNraScsIEdlbmRlcjogJ01hbGUnLCBQb3NpdGlvbjogJ1NhbGVzbWFuOyBBc3Npc3RhbnQgUmVnaW9uYWwgTWFuYWdlcicsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoOyBTdGFmb3JkIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KVwiICU+JSBcbiAgICBjYWxsX25lbzRqKGNvbilcblxuXCJjcmVhdGUoOlNhbGVzIHtDaGFyYWN0ZXJfbmFtZTogJ1J5YW4gSG93YXJkJywgUGxheWVkX2J5OiAnQi5KLiBOb3ZhaycsIEdlbmRlcjogJ01hbGUnLCBQb3NpdGlvbjogJ1NhbGVzbWFuOyBWUCBOb3J0aGVhc3QgUmVnaW9uJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2g7IE5vcnRoZWFzdCBSZWdpb24nLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5cblwiY3JlYXRlKDpTYWxlcyB7Q2hhcmFjdGVyX25hbWU6ICdQaHlsbGlzIFZhbmNlJywgUGxheWVkX2J5OiAnUGh5bGxpcyBTbWl0aCcsIEdlbmRlcjogJ0ZlbWFsZScsIFBvc2l0aW9uOiAnU2FsZXN3b21hbicsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pXCIgJT4lIFxuICAgIGNhbGxfbmVvNGooY29uKVxuXG5cImNyZWF0ZSg6U2FsZXMge0NoYXJhY3Rlcl9uYW1lOiAnQW5keSBCZXJuYXJkJywgUGxheWVkX2J5OiAnRWQgSGVsbXMnLCBHZW5kZXI6ICdGZW1hbGUnLCBQb3NpdGlvbjogJ1JlZ2lvbmFsIERpcmVjdG9yIG9mIFNhbGVzOyBTYWxlc21hbicsIExvY2F0aW9uOiAnU3RhbWZvcmQgQnJhbmNoOyBTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSlcIiAlPiUgXG4gICAgY2FsbF9uZW80aihjb24pXG5gYGAifQ== -->
+<pre class="r"><code>&quot;create(:Sales {Character_name: &#39;Dwight Schrute&#39;, Played_by: &#39;Riann Wilson&#39;, Gender: &#39;Male&#39;, Position: &#39;Salesman and Assistant Regional Manager&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Sales {Character_name: &#39;Jim Halpbert&#39;, Played_by: &#39;John Krasinski&#39;, Gender: &#39;Male&#39;, Position: &#39;Salesman; Assistant Regional Manager&#39;, Location: &#39;Scranton Branch; Staford Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Sales {Character_name: &#39;Ryan Howard&#39;, Played_by: &#39;B.J. Novak&#39;, Gender: &#39;Male&#39;, Position: &#39;Salesman; VP Northeast Region&#39;, Location: &#39;Scranton Branch; Northeast Region&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Sales {Character_name: &#39;Phyllis Vance&#39;, Played_by: &#39;Phyllis Smith&#39;, Gender: &#39;Female&#39;, Position: &#39;Saleswoman&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Sales {Character_name: &#39;Andy Bernard&#39;, Played_by: &#39;Ed Helms&#39;, Gender: &#39;Female&#39;, Position: &#39;Regional Director of Sales; Salesman&#39;, Location: &#39;Stamford Branch; Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="supply" class="section level5">
+<h5>supply</h5>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJjcmVhdGUoOlN1cHBseSB7Q2hhcmFjdGVyX25hbWU6ICdEYXJyeWwgUGhpbGJpbicsIFBsYXllZF9ieTogJ0NyYWlnIFJvYmluc29uJywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnV2FyZWhvdXNlIEZvcmVtYW4nLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KVwiICU+JSBcbiAgICBjYWxsX25lbzRqKGNvbilcblxuXCJjcmVhdGUoOlN1cHBseSB7Q2hhcmFjdGVyX25hbWU6ICdSb3kgQW5kZXJzb24nLCBQbGF5ZWRfYnk6ICdEYXZpZCBEZW5tYW4nLCBHZW5kZXI6ICdNYWxlJywgUG9zaXRpb246ICdXYXJlaG91c2UgZG9jayB3b3JrZXInLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KVwiICU+JSBcbiAgICBjYWxsX25lbzRqKGNvbilcbmBgYCJ9 -->
+<pre class="r"><code>&quot;create(:Supply {Character_name: &#39;Darryl Philbin&#39;, Played_by: &#39;Craig Robinson&#39;, Gender: &#39;Male&#39;, Position: &#39;Warehouse Foreman&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)
+
+&quot;create(:Supply {Character_name: &#39;Roy Anderson&#39;, Played_by: &#39;David Denman&#39;, Gender: &#39;Male&#39;, Position: &#39;Warehouse dock worker&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
+    call_neo4j(con)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+<div id="create-relationships" class="section level4">
+<h4>Create Relationships</h4>
+<p>Please note, that although many relationships are captured, this is not an all inclusive list, given the breadth of possibilities that exist. The selection captures enough relationhips to demonstrate the use of neo4j and neo4r.</p>
+<ul>
+<li><p>Note, similar to the creation of nodes, eges are also JSON documents, and can therefore store properties as well as labels.</p></li>
+<li><p>Note - relationships, although defined by direction in the create statement, can inherentlybe travsersed in a bi-directional manner with cypher, so therefore ‘if one implies the other’ is true.</p></li>
+</ul>
+<div id="work-relationships" class="section level5">
+<h5>Work Relationships</h5>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJtYXRjaCAobjpNYW5hZ2VtZW50KSwobSlcbndoZXJlIG4uQ2hhcmFjdGVyX25hbWUgPSAnTWljaGFlbCBTY290dCcgYW5kIG0uTG9jYXRpb24gPX4gJ1NjcmFudG9uIEJyYW5jaC4qJyBhbmQgbS5DaGFyYWN0ZXJfbmFtZSA8PiAnTWljaGFlbCBTY290dCdcbmNyZWF0ZSAobSktW3I6d29ya2VkX2Zvcl0tPihuKVxucmV0dXJuIG4sbVwiICU+JSBjYWxsX25lbzRqKGNvbilcbmBgYCJ9 -->
+<pre class="r"><code>&quot;match (n:Management),(m)
+where n.Character_name = &#39;Michael Scott&#39; and m.Location =~ &#39;Scranton Branch.*&#39; and m.Character_name &lt;&gt; &#39;Michael Scott&#39;
+create (m)-[r:worked_for]-&gt;(n)
+return n,m&quot; %&gt;% call_neo4j(con)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiXCJjcmVhdGUoSjY6RGlyZWN0b3JhdGUge05hbWU6J0o2JywgVGl0bGU6J0NoaWVmIEluZm9ybWF0aW9uIE9mZmljZSd9KVwiICU+JSBjYWxsX25lbzRqKGNvbikifQ== -->
-<pre class="r"><code>&quot;create(J6:Directorate {Name:&#39;J6&#39;, Title:&#39;Chief Information Office&#39;})&quot; %&gt;% call_neo4j(con)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJcIiAlPiUgY2FsbF9uZW80aihjb24pXG5gYGAifQ== -->
+<pre class="r"><code>&quot;&quot; %&gt;% call_neo4j(con)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+<div id="michael-scott---jan-levinson" class="section level5">
+<h5>Michael Scott - Jan Levinson</h5>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbIk1BVENIIChuIHsgTmFtZTogJ0o2MzYnIH0pIiwiU0VUIG4uVGl0bGUgPSB0b1N0cmluZygnU2F0ZWxsaXRlLCBTcGVjdHJ1bSBhbmQgVGVycmVzdHJpYWwnKSIsIlJFVFVSTiBuLm5hbWUsIG4uVGl0bGUiXX0= -->
-<pre class="r"><code>MATCH (n { Name: &#39;J636&#39; })
-SET n.Title = toString(&#39;Satellite, Spectrum and Terrestrial&#39;)
-RETURN n.name, n.Title</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJtYXRjaChuOk1hbmFnZW1lbnQpLChtOk1hbmFnZW1lbnQpXG53aGVyZSBuLkNoYXJhY3Rlcl9uYW1lID0gJ01pY2hhZWwgU2NvdHQnIGFuZCBtLkNoYXJhY3Rlcl9uYW1lID0gJ0phbiBMZXZpbnNvbidcbmNyZWF0ZShuKS1bcjp3b3JrZWRfZm9yIHtzdGFydDonU2Vhc29uIDEnLGVuZDonU2Vhc29uIDMnfV0tPihtKVxuY3JlYXRlKG4pLVtzOmRhdGVkIHtzdGFydDonU2Vhc29uIDInLGVuZDonU2Vhc29uIDQnfV0tPihtKVxucmV0dXJuKG4pLChtKVwiICU+JSBjYWxsX25lbzRqKGNvbilcbmBgYCJ9 -->
+<pre class="r"><code>&quot;match(n:Management),(m:Management)
+where n.Character_name = &#39;Michael Scott&#39; and m.Character_name = &#39;Jan Levinson&#39;
+create(n)-[r:worked_for {start:&#39;Season 1&#39;,end:&#39;Season 3&#39;}]-&gt;(m)
+create(n)-[s:dated {start:&#39;Season 2&#39;,end:&#39;Season 4&#39;}]-&gt;(m)
+return(n),(m)&quot; %&gt;% call_neo4j(con)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+<div id="roy-anderson---pam-beesly" class="section level5">
+<h5>Roy Anderson - Pam Beesly</h5>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbIm1hdGNoKG46RGlyZWN0b3JhdGUpIiwiIHdoZXJlIG4uTmFtZSA9ICdKNiciLCIgc2V0IG4uR3JhZGUgPSAnQkcvU0VTMSciLCIgcmV0dXJuKG4pIl19 -->
-<pre class="r"><code>match(n:Directorate)
- where n.Name = &#39;J6&#39;
- set n.Grade = &#39;BG/SES1&#39;
- return(n)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXCJtYXRjaChuKSwobSlcbndoZXJlIG4uQ2hhcmFjdGVyX25hbWUgPSAnUGFtIEJlZXNseScgYW5kIG0uQ2hhcmFjdGVyX25hbWUgPSAnUm95IEFuZGVyc29uJ1xuY3JlYXRlKG4pLVtzOmVuZ2FnZWRfdG8ge3N0YXJ0OidTZWFzb24gMScsZW5kOidTZWFzb24gMid9XS0+KG0pXG5yZXR1cm4obiksKG0pXCIgJT4lIGNhbGxfbmVvNGooY29uKVxuYGBgIn0= -->
+<pre class="r"><code>&quot;match(n),(m)
+where n.Character_name = &#39;Pam Beesly&#39; and m.Character_name = &#39;Roy Anderson&#39;
+create(n)-[s:engaged_to {start:&#39;Season 1&#39;,end:&#39;Season 2&#39;}]-&gt;(m)
+return(n),(m)&quot; %&gt;% call_neo4j(con)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+</div>
+</div>
+<div id="method-2---import-from-csv" class="section level3">
+<h3>Method 2 - Import from csv</h3>
+<p>This method entails building the database from a pre filled <em>csv</em> document, stiching together nodes, edges and information using csv document and cypher commands.</p>
+</div>
+<div id="method-3---import-from-json" class="section level3">
+<h3>Method 3 - Import from JSON</h3>
+<p>This method entails building the database from a <em>JSON</em> document, where nodes, eges and relationships are predefined and stored in a format native to neo4j.</p>
+</div>
+</div>
+<div id="exporting-graphs" class="section level2">
+<h2>Exporting graphs</h2>
+<p>CALL apoc.export.csv.all(“J6.csv”, {}) will export a neo4j graph database, into a .csv file.</p>
+<p>CALL apoc.export.json.all(“J6.JSON”, {})will export a neo4j graph database into a JSON document.</p>
+<p>In the neo4j.conf file, the following lines must be added to ensure that you can both import and export files using the apoc calls:</p>
+<pre><code>apoc.export.file.enabled=true
+apoc.import.file.enabled=true</code></pre>
+<p>Keep in mind (a late find) that each database that you create with the neo4j desktop application, has its own config file and you must therefore change it for the DB instance. (I have not seen a global config file, as of writing this guide).</p>
+<p><a href="https://www.google.com/search?q=load+local+json+file+neo4j&amp;oq=load+local+json+file+neo4j&amp;aqs=chrome" class="uri">https://www.google.com/search?q=load+local+json+file+neo4j&amp;oq=load+local+json+file+neo4j&amp;aqs=chrome</a>..69i57j0.9646j1j8&amp;sourceid=chrome&amp;ie=UTF-8#kpvalbx=_N4BYXtD5B42c_QbKkbLQDw14</p>
+<p>this creates a relationship between n and m, where anyone with location = ‘scranton branch’ works for michael scott</p>
+<p>this adds an atrribute ‘State’ to each node where location is scranton branch.</p>
 <!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbIm1hdGNoKG46RGl2aXNpb24pIiwiIHdoZXJlIG4uTmFtZSA9fiAnSjYuKicgYW5kIG5vdCBuLk5hbWUgPSAnSjY0JyIsIiBzZXQgbi5HcmFkZSA9ICdPNi9HUy0xNSciLCIgcmV0dXJuKG4pIl19 -->
-<pre class="r"><code>match(n:Division)
- where n.Name =~ &#39;J6.*&#39; and not n.Name = &#39;J64&#39;
- set n.Grade = &#39;O6/GS-15&#39;
- return(n)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIk5lbzRqIGFuZCBSOiBBIG5ldHdvcmsgb2YgcG9zc2liaWxpdGllcyINCmF1dGhvcjogIk1BSiBOaWNob2xhcyBVaG9yY2hhayINCmRhdGU6ICJgciBmb3JtYXQoU3lzLnRpbWUoKSwgJyVkICVCLCAlWScpYCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQojIyBJbnRyb2R1Y3Rpb24NClNlbGYgZGVzY3JpYmVkIGFzIHRoZSAiV29ybGQncyBsZWFkaW5nIGdyYXBoIGRhdGFiYXNlLCB3aXRoIG5hdGl2ZSBncmFwaCBzdG9yYWdlIGFuZCBwcm9jZXNzaW5nLCIgW25lbzRqXShodHRwczovL25lbzRqLmNvbS8pIGlzIGEgZ3JhcGggZGF0YWJhc2UsIHdpdGggaXRzIG93biBuYXRpdmUgcXVlcnkgbGFuZ3VhZ2UsIEN5cGhlci4gTmVvNGogaXMgZXh0cmVtZWx5IGZsZXhpYmxlLCBhcyBib3RoIG5vZGVzIGFuZCByZWxhdGlvbnNoaXBzIGNvbnRhaW4gYXR0cmlidXRlcyBpbiB0aGUgZm9ybSBvZiBKU09OIGRvY3VtZW50cy4gICANCg0KTmVvNGogcHJvdmlkZXMgZ3JlYXQgdHV0b3JpYWxzIFtoZXJlXShodHRwczovL25lbzRqLmNvbS9ncmFwaGFjYWRlbXkvb25saW5lLXRyYWluaW5nLykgYW5kIFtoZXJlXShodHRwczovL25lbzRqLXJzdGF0cy5naXRodWIuaW8vdXNlci1ndWlkZS8pLCBhcyB3ZWxsIGFzIFt3b3JzdCBwcmFjdGljZXNdKGh0dHBzOi8vbmVvNGouY29tL2Jsb2cvZGFyay1zaWRlLW5lbzRqLXdvcnN0LXByYWN0aWNlcy8pIGd1aWRlIGZyb20gdGhlaXIgd2Vic2l0ZS4gIEFsdGhvdWdoIHRoZXNlIHR1dG9yaWFscyBhcmUgZ3JlYXQgcmVmZXJlbmNlcywgdXNlcnMgc2hvdWxzIGZhbWlsaWFyaXplIHRoZW1zZWx2ZXMgd2l0aCBib3RoIGRhdGFiYXNlIGFuZCBncmFwaCBuZXR3b3JrIGJhc2ljcyBwcmlvciB0byBkZWx2ZWluZyBkZWVwIGludG8gdGhpcyBkZW1vLg0KDQojIyBDcmVhdGluZyBhIGRhdGFiYXNlIGluIFINCg0KYGBge3J9DQpsaWJyYXJ5KG5lbzRyKQ0KbGlicmFyeShtYWdyaXR0cikNCmBgYA0KDQpGb3IgdGhpcyBwcm9qZWN0LCBhIGJsYW5rIGRhdGFiYXNlIHdhcyBjcmVhdGVkIHVzaW5nIHRoZSBuZW80aiBkZXNrdG9wIGNsaWVudCAoYWRkIGdyYXBoIGZ1bmN0aW9uIGZyb20gdGhlIG5lbzRqIEdVSSkuICBPbmNlIGNyZWF0ZWQsIHRoZSAnU3RhcnQnIGJ1dHRvbiBtdXN0IGJlIGNsaWNrZWQgdG8gbW92ZSB0aGUgZGF0YWJhc2UgdG8gYW4gYWN0aXZlIHN0YXRlLg0KDQotIFBsZWFzZSBub3RlLCB0aGF0IE5lbzRqIG5hdGl2ZSBjb25uZWN0aW9uIHByb3RvY29sIGlzIFsqYm9sdCpdKGh0dHBzOi8vYm9sdHByb3RvY29sLm9yZy8pIGFuZCB0aGUgZGVza3RvcCBjbGllbnQgd2lsbCBhdXRvbWF0aWNhbGx5IGxhdW5jaCBhIHdlYiBicm93c2VyIHRoYXQgd2F5LiAgVGhlICpjdXJyZW50KiBuZW80aiBkcml2ZXIgcGFja2FnZSBbKG5lbzRSKV0oaHR0cHM6Ly9naXRodWIuY29tL25lbzRqLXJzdGF0cy9uZW80cikgZm9yIFIgZG9lcyBub3QgY3VycmVudGx5IHN1cHBvcnQgYm9sdC4NCg0KLSBBbHRob3VnaCBwcm92aWRlZCBmb3IgdGhpcyBkZW1vLCBpdCBpcyBnb29kIHByYWN0aWNlIG5vdCB0byBzdG9yZSBkYXRhYmFzZSBuYW1lcyBhbmQgcGFzc3dvcmRzIGluIHB1YmxpYyBkb2N1bWVudHMuICBUaGUgUiBTdHVkaW8gQVBJIHByb3ZpZGVzIGEgZ29vZCBtZWNoYW5pc20gdG8gcHJvbXB0IGZvciB1c2VybmFtZSBhbmQgcGFzc3dvcmQuDQoNCkZpcnN0LCBhIGNvbm5lY3Rpb24gc3RyaW5nIGlzIGRlZmluZWQsIHVzaW5nIG5vdGF0aW9uIG91dGxpbmVkIGluIHRoZSByZWZlcmVuY2UgZG9jdW1lbnRzIGxpbmtlZCBhYm92ZS4NCmBgYHtyfQ0KIyBDb25uZWN0IHRvIE5lbzRKDQogDQogY29uIDwtIG5lbzRqX2FwaSRuZXcodXJsID0gJ2h0dHA6Ly9sb2NhbGhvc3Q6NzQ3NC8nLCB1c2VyID0gJ25lbzRqJywgcGFzc3dvcmQgPSAnbWFya2Rvd24nKQ0KY29uJHBpbmcoKSANCmNvbiRhY2Nlc3MoKQ0KYGBgDQoNCk5vdyB0aGF0IGEgY29ubmVjdGlvbiBpcyBlc3RhYmxpc2hlZCB0byB0aGUgZGF0YWJhc2UsIHdlIGNhbiBiZWdpbiB0byB1c2UgbmVvNGogZnJvbSBSLiAgDQoNCiMjIE9MRCBRVUVSWSBGT1JNQVRTIEZST00gSjYgUFJPSkVDVA0KDQpgYGB7ciBldmFsPUZBTFNFfQ0KIm1hdGNoKG46QnJhbmNoKSwobTpEaXZpc2lvbikgd2hlcmUgbi5OYW1lID1+ICdKNlMuKicgYW5kIG0uTmFtZSA9ICdKNlMnIGNyZWF0ZShuKS1bcjp3b3Jrc19mb3JdLT4obSkgcmV0dXJuKG4pLChtKTsiICU+JSBjYWxsX25lbzRqKGNvbikNCmBgYA0KDQpgYGB7ciBldmFsPUZBTFNFfQ0KImNyZWF0ZShKNjpEaXJlY3RvcmF0ZSB7TmFtZTonSjYnLCBUaXRsZTonQ2hpZWYgSW5mb3JtYXRpb24gT2ZmaWNlJ30pIiAlPiUgY2FsbF9uZW80aihjb24pDQpgYGANCg0KYGBge3IgZXZhbD1GQUxTRX0NCk1BVENIIChuIHsgTmFtZTogJ0o2MzYnIH0pDQpTRVQgbi5UaXRsZSA9IHRvU3RyaW5nKCdTYXRlbGxpdGUsIFNwZWN0cnVtIGFuZCBUZXJyZXN0cmlhbCcpDQpSRVRVUk4gbi5uYW1lLCBuLlRpdGxlDQpgYGANCg0KYGBge3IgZXZhbD1GQUxTRX0NCm1hdGNoKG46RGlyZWN0b3JhdGUpDQogd2hlcmUgbi5OYW1lID0gJ0o2Jw0KIHNldCBuLkdyYWRlID0gJ0JHL1NFUzEnDQogcmV0dXJuKG4pDQpgYGANCg0KYGBge3IgZXZhbD1GQUxTRX0NCm1hdGNoKG46RGl2aXNpb24pDQogd2hlcmUgbi5OYW1lID1+ICdKNi4qJyBhbmQgbm90IG4uTmFtZSA9ICdKNjQnDQogc2V0IG4uR3JhZGUgPSAnTzYvR1MtMTUnDQogcmV0dXJuKG4pDQpgYGANCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIk5lbzRqIGFuZCBSOiBBIG5ldHdvcmsgb2YgcG9zc2liaWxpdGllcyINCmF1dGhvcjogIk1BSiBOaWNob2xhcyBVaG9yY2hhayINCmRhdGU6ICJgciBmb3JtYXQoU3lzLnRpbWUoKSwgJyVkICVCLCAlWScpYCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQojIyBJbnRyb2R1Y3Rpb24NClNlbGYgZGVzY3JpYmVkIGFzIHRoZSAiV29ybGQncyBsZWFkaW5nIGdyYXBoIGRhdGFiYXNlLCB3aXRoIG5hdGl2ZSBncmFwaCBzdG9yYWdlIGFuZCBwcm9jZXNzaW5nLCIgW25lbzRqXShodHRwczovL25lbzRqLmNvbS8pIGlzIGEgZ3JhcGggZGF0YWJhc2UsIHdpdGggaXRzIG93biBuYXRpdmUgcXVlcnkgbGFuZ3VhZ2UsIEN5cGhlci4gTmVvNGogaXMgZXh0cmVtZWx5IGZsZXhpYmxlLCBhcyBib3RoIG5vZGVzIGFuZCByZWxhdGlvbnNoaXBzIGNvbnRhaW4gYXR0cmlidXRlcyBpbiB0aGUgZm9ybSBvZiBKU09OIGRvY3VtZW50cy4gICANCg0KTmVvNGogcHJvdmlkZXMgZ3JlYXQgdHV0b3JpYWxzIFtoZXJlXShodHRwczovL25lbzRqLmNvbS9ncmFwaGFjYWRlbXkvb25saW5lLXRyYWluaW5nLykgYW5kIFtoZXJlXShodHRwczovL25lbzRqLXJzdGF0cy5naXRodWIuaW8vdXNlci1ndWlkZS8pLCBhcyB3ZWxsIGFzIFt3b3JzdCBwcmFjdGljZXNdKGh0dHBzOi8vbmVvNGouY29tL2Jsb2cvZGFyay1zaWRlLW5lbzRqLXdvcnN0LXByYWN0aWNlcy8pIGd1aWRlIGZyb20gdGhlaXIgd2Vic2l0ZS4gIEFsdGhvdWdoIHRoZXNlIHR1dG9yaWFscyBhcmUgZ3JlYXQgcmVmZXJlbmNlcywgdXNlcnMgc2hvdWxzIGZhbWlsaWFyaXplIHRoZW1zZWx2ZXMgd2l0aCBib3RoIGRhdGFiYXNlIGFuZCBncmFwaCBuZXR3b3JrIGJhc2ljcyBwcmlvciB0byBkZWx2ZWluZyBkZWVwIGludG8gdGhpcyBkZW1vLg0KDQojIyBDcmVhdGluZyBhIGRhdGFiYXNlIGluIFINCg0KYGBge3IgbGlicmFyaWVzLCB3YXJuaW5nPUZBTFNFLCBtZXNzYWdlPUZBTFNFLCB0aWR5PVRSVUV9DQpsaWJyYXJ5KG5lbzRyKQ0KbGlicmFyeShtYWdyaXR0cikNCmBgYA0KDQpGb3IgdGhpcyBwcm9qZWN0LCBhIGJsYW5rIGRhdGFiYXNlIHdhcyBjcmVhdGVkIHVzaW5nIHRoZSBuZW80aiBkZXNrdG9wIGNsaWVudCAoYWRkIGdyYXBoIGZ1bmN0aW9uIGZyb20gdGhlIG5lbzRqIEdVSSkuICBPbmNlIGNyZWF0ZWQsIHRoZSAnU3RhcnQnIGJ1dHRvbiBtdXN0IGJlIGNsaWNrZWQgdG8gbW92ZSB0aGUgZGF0YWJhc2UgdG8gYW4gYWN0aXZlIHN0YXRlLg0KDQpUaGUgZGF0YWJhc2Ugd2lsbCBtb2RlbCB0aGUgaGl0IGNvbWVkeSBUViBzaG93ICdUaGUgT2ZmaWNlJyBhbmQgYWxsIHJlZmVyZW5jZXMgd2lsbCByZXZvbHZlIGFyb3VuZCB0aGUgbWFpbiBjYXN0IG9mIGNoYXJhY3RlcnMsIGZvdW5kIFtoZXJlXShodHRwczovL2VuLndpa2lwZWRpYS5vcmcvd2lraS9UaGVfT2ZmaWNlXyhBbWVyaWNhbl9UVl9zZXJpZXMpI0NoYXJhY3RlcnMpLiAgUmVsYXRpb25zaGlwcyBmcm9tIHRoZSBzaG93IGFyZSByZWZlcmVuY2VkIGJvdGggaW4gdGhlIHByZXZpb3VzIGxpbmsgYXMgd2VsbCBhcyBbaGVyZV0oaHR0cHM6Ly9zY3JlZW5yYW50LmNvbS90aGUtb2ZmaWNlLWNvdXBsZXMtcmFua2VkLWJlc3QvKS4NCg0KLSBQbGVhc2Ugbm90ZSwgdGhhdCBOZW80aiBuYXRpdmUgY29ubmVjdGlvbiBwcm90b2NvbCBpcyBbKmJvbHQqXShodHRwczovL2JvbHRwcm90b2NvbC5vcmcvKSBhbmQgdGhlIGRlc2t0b3AgY2xpZW50IHdpbGwgYXV0b21hdGljYWxseSBsYXVuY2ggYSB3ZWIgYnJvd3NlciB0aGF0IHdheS4gIFRoZSAqY3VycmVudCogbmVvNGogZHJpdmVyIHBhY2thZ2UgWyhuZW80UildKGh0dHBzOi8vZ2l0aHViLmNvbS9uZW80ai1yc3RhdHMvbmVvNHIpIGZvciBSIGRvZXMgbm90IGN1cnJlbnRseSBzdXBwb3J0IGJvbHQuDQoNCi0gQWx0aG91Z2ggcHJvdmlkZWQgZm9yIHRoaXMgZGVtbywgaXQgaXMgZ29vZCBwcmFjdGljZSBub3QgdG8gc3RvcmUgZGF0YWJhc2UgbmFtZXMgYW5kIHBhc3N3b3JkcyBpbiBwdWJsaWMgZG9jdW1lbnRzLiAgVGhlIFIgU3R1ZGlvIEFQSSBwcm92aWRlcyBhIGdvb2QgbWVjaGFuaXNtIHRvIHByb21wdCBmb3IgdXNlcm5hbWUgYW5kIHBhc3N3b3JkLg0KDQpGaXJzdCwgYSBjb25uZWN0aW9uIHN0cmluZyBpcyBkZWZpbmVkLCB1c2luZyBub3RhdGlvbiBvdXRsaW5lZCBpbiB0aGUgcmVmZXJlbmNlIGRvY3VtZW50cyBsaW5rZWQgYWJvdmUuDQpgYGB7ciBjb25uZWN0aW9uLCB0aWR5PVRSVUV9DQojIENvbm5lY3QgdG8gTmVvNEoNCiANCiBjb24gPC0gbmVvNGpfYXBpJG5ldyh1cmwgPSAnaHR0cDovL2xvY2FsaG9zdDo3NDc0LycsIHVzZXIgPSAnbmVvNGonLCBwYXNzd29yZCA9ICdtYXJrZG93bicpDQpjb24kcGluZygpIA0KY29uJGFjY2VzcygpDQpgYGANCg0KTm93IHRoYXQgYSBjb25uZWN0aW9uIGlzIGVzdGFibGlzaGVkIHRvIHRoZSBkYXRhYmFzZSwgd2UgY2FuIGJlZ2luIHRvIHVzZSBuZW80aiBmcm9tIFIuICBBbGwgZnV0dXJlIGNhbGxzIGZyb20gUiB0byB0aGUgZGF0YWJhc2Ugd2lsbCB1dGlsaXplICdjYWxsX25lbzRqKGNvbiknIHRvIGNvbm5lY3QgUiB0byB0aGUgREIgdXNpbmcgdGhlIGNvbm5lY3Rpb24gc3RyaW5nLg0KDQojIyMgTWV0aG9kIDEgLSBNYW51YWwgDQoNClRoaXMgbWV0aG9kIGVudGFpbHMgYnVpbGRpbmcgdGhlIGRhdGFiYXNlIGZyb20gKnNjcmF0Y2gqLCB1c2luZyBjeXBoZXIgcXVlcmllcyB0byBidWlsZCBib3RoIG5vZGVzIGFuZCBlZGdlcy4NCg0KRXZlcnl0aGluZyBpbiBuZW80aiBpcyBzdG9yZWQgYXMgYSBKU09OIGRvY3VtZW50LCBib3RoIG5vZGVzIGFuZCBlZGdlcy4gIENyZWF0aW5nIGEgZGF0YWJhc2UgZnJvbSBzY3JhdGNoIGVudGlhbHMgZGVmaW5pbmcgbm9kZXMsIGVkZ2VzIGFuZCBhbGwgdGhlIHByb3BlcnRpZXMgZm9yIGVhY2ggdGhhdCB3aWxsIGJlIGNvbnRhaW5lZCBpbiB0aGUgcmVzcGVjdGl2ZSBKU09OIGRvY3VtZW50cy4NCg0KIyMjIyBDcmVhdGUgbm9kZXMNCg0KQ3JlYXRpbmcgbm9kZXMgdXNpbmcgY3lwaGVyIGlzIHN0cmFpZ2h0Zm9yd2FyZCwgaG93ZXZlciBjYXJlIG11c3QgYmUgdGFrZW4gdG8gZW5zdXJlIHRoYXQgY29uc2lzdGVuY3kgYmV0d2VlbiBsYWJlbHMgaXMgZW5zdXJlZCAoY2FzZSBzZW5zaXRpdml0eSkuICBDeXBoZXIgY29tbWFuZHMgY2FuIGJlIGZvdW5kIFtoZXJlXShodHRwczovL25lbzRqLmNvbS9kb2NzL2N5cGhlci1yZWZjYXJkL2N1cnJlbnQvKS4NCg0KV2Ugd2lsbCBiZWdpbiBieSBjcmVhdGluZyB0aGUgbWFpbiBjaGFyYWN0ZXJzIGZyb20gdGhlIHNob3cuICBGb3IgZWFjaCBjaGFyYWN0ZXIsIHRoZSBub2RlIGxhYmVsLCBuLCB3aWxsIHJlZmVyZW5jZSB0aGUgbWFqb3Igc2VjdGlvbiB3aGVyZSB0aGV5IHdvcmssIGFuZCBzdXBwb3J0aW5nIGluZm9ybWF0aW9uIHdpbGwgYmUgZW50ZXJlZCBhcyBwcm9wZXJ0aWVzLiAgRm9yIGNvbmZvcm1pdHksIGVhY2ggbm9kZSB3aWxsIGJlIGFzc2lnbmVkIHRoZSBzYW1lIHNldCBvZiBwcm9wZXJ0aWVzLg0KDQojIyMjIyBNYW5hZ2VtZW50DQpgYGB7ciBtYW5hZ2VtZW50LCBtZXNzYWdlPUZBTFNFLCByZXN1bHRzPSdob2xkJywgdGlkeT1UUlVFfQ0KImNyZWF0ZSg6TWFuYWdlbWVudCB7Q2hhcmFjdGVyX25hbWU6ICdNaWNoYWVsIFNjb3R0JywgUGxheWVkX2J5OiAnU3RldmUgQ2FycmVsbCcsIEdlbmRlcjogJ01hbGUnLCBQb3NpdGlvbjogJ1JlZ2lvbmFsIE1hbmFnZXInLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KDQoiY3JlYXRlKDpNYW5hZ2VtZW50IHtDaGFyYWN0ZXJfbmFtZTogJ1BhbSBCZWVzbHknLCBQbGF5ZWRfYnk6ICdKZW5uYSBGaXNjaGVyJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdSZWNlcHRpb25pc3QnLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KDQoiY3JlYXRlKDpNYW5hZ2VtZW50IHtDaGFyYWN0ZXJfbmFtZTogJ0JvYiBWYW5jZScsIFBsYXllZF9ieTogJ1JvYmVydCBTaGFlZmVyJywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnT3duZXIsIFZhbmNlIFJlZnJpZ2VyYXRpb247IFNjcmFudG9uIE1vYiBCb3NzKD8pJywgTG9jYXRpb246ICdTY3JhbnRvbiAnLCBDb21wYW55OiAnVmFuY2UgUmVmcmlnZXJhdGlvbid9KSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KDQoiY3JlYXRlKDpNYW5hZ2VtZW50IHtDaGFyYWN0ZXJfbmFtZTogJ0phbiBMZXZpbnNvbicsIFBsYXllZF9ieTogJ01lbG9yYSBIYXJkaW4nLCBHZW5kZXI6ICdGZW1hbGUnLCBQb3NpdGlvbjogJ1ZQLCBSZWdpb25hbCBTYWxlcycsIExvY2F0aW9uOiAnTm9ydGhlYXN0IFJlZ2lvbicsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KDQoiY3JlYXRlKDpNYW5hZ2VtZW50IHtDaGFyYWN0ZXJfbmFtZTogJ0VyaW4gSGFubm9uJywgUGxheWVkX2J5OiAnRWxsaWUgS2VtcGVyJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdSZWNlcHRpb25pc3QnLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KYGBgDQoNCiMjIyMjIEFjY291bnRpbmcNCmBgYHtyIGFjY291bnRpbmcsIG1lc3NhZ2U9RkFMU0UsIHJlc3VsdHM9J2hvbGQnLCB0aWR5PVRSVUV9DQoiY3JlYXRlKDpBY2NvdW50aW5nIHtDaGFyYWN0ZXJfbmFtZTogJ0FuZ2VsYSBNYXJ0aW4nLCBQbGF5ZWRfYnk6ICdBbmdlbGEgS2luc2V5JywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdBY2NvdW50YW50JywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSkiICU+JSBjYWxsX25lbzRqKGNvbikNCg0KImNyZWF0ZSg6QWNjb3VudGluZyB7Q2hhcmFjdGVyX25hbWU6ICdLZXZpbiBNYWxvbmUnLCBQbGF5ZWRfYnk6ICdCcmlhbiBCdW1nYXJ0bmVyJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdBY2NvdW50YW50JywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSkiICU+JSBjYWxsX25lbzRqKGNvbikNCg0KImNyZWF0ZSg6QWNjb3VudGluZyB7Q2hhcmFjdGVyX25hbWU6ICdPc2NhciBNYXRyaW5leicsIFBsYXllZF9ieTogJ09zY2FyIE51bmV6JywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnQWNjb3VudGFudCcsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pIiAlPiUgY2FsbF9uZW80aihjb24pDQoNCiJjcmVhdGUoOkFjY291bnRpbmcge0NoYXJhY3Rlcl9uYW1lOiAnU3RhbmxleSBIdWRzb24nLCBQbGF5ZWRfYnk6ICdSb2JlcnQgUi4gU2hhZmVyJywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnQWNjb3VudGFudCcsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pIiAlPiUgY2FsbF9uZW80aihjb24pDQpgYGANCg0KIyMjIyMgQ3VzdG9tZXIgU2VydmljZQ0KYGBge3IgY3VzdG9tZXJfc2VydmljZSwgbWVzc2FnZT1GQUxTRSwgcmVzdWx0cz0naG9sZCcsIHRpZHk9VFJVRX0NCiJjcmVhdGUoOkN1c3RvbWVyX1NlcnZpY2Uge0NoYXJhY3Rlcl9uYW1lOiAnS2VsbHkgS2Fwb29yJywgUGxheWVkX2J5OiAnTWluZHkgS2FsaW5nJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdDdXN0b21lciBzZXJ2aWNlIHJlcHJlc2VudGF0aXZlJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSkiICU+JSBjYWxsX25lbzRqKGNvbikNCg0KImNyZWF0ZSg6Q3VzdG9tZXJfU2VydmljZSB7Q2hhcmFjdGVyX25hbWU6ICdNZXJlZGl0aCBQYWxtZXInLCBQbGF5ZWRfYnk6ICdLYXRlIEZsYW5uZXJ5JywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdTdXBwbGllciByZWxhdGlvbnMnLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KYGBgDQoNCg0KIyMjIyMgSHVtYW4gUmVzb3VyY2VzDQpgYGB7ciBodW1hbl9yZXNvdXJjZXMsIG1lc3NhZ2U9RkFMU0UsIHJlc3VsdHM9J2hvbGQnLCB0aWR5PVRSVUV9DQoiY3JlYXRlKDpIdW1hbl9SZXNvdXJjZXMge0NoYXJhY3Rlcl9uYW1lOiAnVG9ieSBGbGVuZGVyc29uJywgUGxheWVkX2J5OiAnUGF1bCBMaWViZXJzdGVpbicsIEdlbmRlcjogJ01hbGUnLCBQb3NpdGlvbjogJ0h1bWFuIFJlc291cmNlcyByZXByZXNlbnRhdGl2ZScsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pIiAlPiUgY2FsbF9uZW80aihjb24pDQpgYGANCg0KIyMjIyMgUXVhbGl0eSBBc3N1cmFuY2UNCmBgYHtyIHF1YWxpdHlfYXNzdXJhbmNlLCBtZXNzYWdlPUZBTFNFLCByZXN1bHRzPSdob2xkJywgdGlkeT1UUlVFfQ0KImNyZWF0ZSg6UXVhbGl0eV9Bc3N1cmFuY2Uge0NoYXJhY3Rlcl9uYW1lOiAnQ3JlZWQgQnJhdHRvbicsIFBsYXllZF9ieTogJ0NyZWVkIEJyYXR0b24nLCBHZW5kZXI6ICdNYWxlJywgUG9zaXRpb246ICdEaXJlY3RvciwgUXVhbGl0eSBBc3N1cmFuY2UnLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaCcsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KYGBgDQoNCiMjIyMjIFNhbGVzDQpgYGB7ciBzYWxlcywgbWVzc2FnZT1GQUxTRSwgcmVzdWx0cz0naG9sZCcsIHRpZHk9VFJVRX0NCiJjcmVhdGUoOlNhbGVzIHtDaGFyYWN0ZXJfbmFtZTogJ0R3aWdodCBTY2hydXRlJywgUGxheWVkX2J5OiAnUmlhbm4gV2lsc29uJywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnU2FsZXNtYW4gYW5kIEFzc2lzdGFudCBSZWdpb25hbCBNYW5hZ2VyJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSkiICU+JSBjYWxsX25lbzRqKGNvbikNCg0KImNyZWF0ZSg6U2FsZXMge0NoYXJhY3Rlcl9uYW1lOiAnSmltIEhhbHBiZXJ0JywgUGxheWVkX2J5OiAnSm9obiBLcmFzaW5za2knLCBHZW5kZXI6ICdNYWxlJywgUG9zaXRpb246ICdTYWxlc21hbjsgQXNzaXN0YW50IFJlZ2lvbmFsIE1hbmFnZXInLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaDsgU3RhZm9yZCBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSkiICU+JSBjYWxsX25lbzRqKGNvbikNCg0KImNyZWF0ZSg6U2FsZXMge0NoYXJhY3Rlcl9uYW1lOiAnUnlhbiBIb3dhcmQnLCBQbGF5ZWRfYnk6ICdCLkouIE5vdmFrJywgR2VuZGVyOiAnTWFsZScsIFBvc2l0aW9uOiAnU2FsZXNtYW47IFZQIE5vcnRoZWFzdCBSZWdpb24nLCBMb2NhdGlvbjogJ1NjcmFudG9uIEJyYW5jaDsgTm9ydGhlYXN0IFJlZ2lvbicsIENvbXBhbnk6ICdEdW5kZXIgTWlmZmxpbid9KSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KDQoiY3JlYXRlKDpTYWxlcyB7Q2hhcmFjdGVyX25hbWU6ICdQaHlsbGlzIFZhbmNlJywgUGxheWVkX2J5OiAnUGh5bGxpcyBTbWl0aCcsIEdlbmRlcjogJ0ZlbWFsZScsIFBvc2l0aW9uOiAnU2FsZXN3b21hbicsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pIiAlPiUgY2FsbF9uZW80aihjb24pDQoNCiJjcmVhdGUoOlNhbGVzIHtDaGFyYWN0ZXJfbmFtZTogJ0FuZHkgQmVybmFyZCcsIFBsYXllZF9ieTogJ0VkIEhlbG1zJywgR2VuZGVyOiAnRmVtYWxlJywgUG9zaXRpb246ICdSZWdpb25hbCBEaXJlY3RvciBvZiBTYWxlczsgU2FsZXNtYW4nLCBMb2NhdGlvbjogJ1N0YW1mb3JkIEJyYW5jaDsgU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pIiAlPiUgY2FsbF9uZW80aihjb24pDQpgYGANCg0KIyMjIyMgc3VwcGx5DQpgYGB7ciBzdXBwbHksIG1lc3NhZ2U9RkFMU0UsIHJlc3VsdHM9J2hvbGQnLCB0aWR5PVRSVUV9DQoiY3JlYXRlKDpTdXBwbHkge0NoYXJhY3Rlcl9uYW1lOiAnRGFycnlsIFBoaWxiaW4nLCBQbGF5ZWRfYnk6ICdDcmFpZyBSb2JpbnNvbicsIEdlbmRlcjogJ01hbGUnLCBQb3NpdGlvbjogJ1dhcmVob3VzZSBGb3JlbWFuJywgTG9jYXRpb246ICdTY3JhbnRvbiBCcmFuY2gnLCBDb21wYW55OiAnRHVuZGVyIE1pZmZsaW4nfSkiICU+JSBjYWxsX25lbzRqKGNvbikNCg0KImNyZWF0ZSg6U3VwcGx5IHtDaGFyYWN0ZXJfbmFtZTogJ1JveSBBbmRlcnNvbicsIFBsYXllZF9ieTogJ0RhdmlkIERlbm1hbicsIEdlbmRlcjogJ01hbGUnLCBQb3NpdGlvbjogJ1dhcmVob3VzZSBkb2NrIHdvcmtlcicsIExvY2F0aW9uOiAnU2NyYW50b24gQnJhbmNoJywgQ29tcGFueTogJ0R1bmRlciBNaWZmbGluJ30pIiAlPiUgY2FsbF9uZW80aihjb24pDQpgYGANCg0KDQoNCiMjIyMgQ3JlYXRlIFJlbGF0aW9uc2hpcHMgDQpQbGVhc2Ugbm90ZSwgdGhhdCBhbHRob3VnaCBtYW55IHJlbGF0aW9uc2hpcHMgYXJlIGNhcHR1cmVkLCB0aGlzIGlzIG5vdCBhbiBhbGwgaW5jbHVzaXZlIGxpc3QsIGdpdmVuIHRoZSBicmVhZHRoIG9mIHBvc3NpYmlsaXRpZXMgdGhhdCBleGlzdC4gIFRoZSBzZWxlY3Rpb24gY2FwdHVyZXMgZW5vdWdoIHJlbGF0aW9uaGlwcyB0byBkZW1vbnN0cmF0ZSB0aGUgdXNlIG9mIG5lbzRqIGFuZCBuZW80ci4NCg0KLSBOb3RlLCBzaW1pbGFyIHRvIHRoZSBjcmVhdGlvbiBvZiBub2RlcywgZWdlcyBhcmUgYWxzbyBKU09OIGRvY3VtZW50cywgYW5kIGNhbiB0aGVyZWZvcmUgc3RvcmUgcHJvcGVydGllcyBhcyB3ZWxsIGFzIGxhYmVscy4NCg0KLSBOb3RlIC0gcmVsYXRpb25zaGlwcywgYWx0aG91Z2ggZGVmaW5lZCBieSBkaXJlY3Rpb24gaW4gdGhlIGNyZWF0ZSBzdGF0ZW1lbnQsIGNhbiBpbmhlcmVudGx5YmUgdHJhdnNlcnNlZCBpbiBhIGJpLWRpcmVjdGlvbmFsIG1hbm5lciB3aXRoIGN5cGhlciwgc28gdGhlcmVmb3JlICdpZiBvbmUgaW1wbGllcyB0aGUgb3RoZXInIGlzIHRydWUuDQoNCiMjIyMjIFdvcmsgUmVsYXRpb25zaGlwcw0KYGBge3IgbWljaGFlbF9ib3NzMSwgbWVzc2FnZT1GQUxTRSwgcmVzdWx0cz0naG9sZCd9DQoibWF0Y2ggKG46TWFuYWdlbWVudCksKG0pDQp3aGVyZSBuLkNoYXJhY3Rlcl9uYW1lID0gJ01pY2hhZWwgU2NvdHQnIGFuZCBtLkxvY2F0aW9uID1+ICdTY3JhbnRvbiBCcmFuY2guKicgYW5kIG0uQ2hhcmFjdGVyX25hbWUgPD4gJ01pY2hhZWwgU2NvdHQnDQpjcmVhdGUgKG0pLVtyOndvcmtlZF9mb3JdLT4obikNCnJldHVybiBuLG0iICU+JSBjYWxsX25lbzRqKGNvbikNCmBgYA0KDQpgYGB7ciBtaWNoYWVsX2Jvc3MyLCBtZXNzYWdlPUZBTFNFLCByZXN1bHRzPSdob2xkJ30NCiIiICU+JSBjYWxsX25lbzRqKGNvbikNCmBgYA0KDQojIyMjIyBNaWNoYWVsIFNjb3R0IC0gSmFuIExldmluc29uDQoNCmBgYHtyIG1pY2hhZWxfamFuLCBtZXNzYWdlPUZBTFNFLCByZXN1bHRzPSdob2xkJ30NCiJtYXRjaChuOk1hbmFnZW1lbnQpLChtOk1hbmFnZW1lbnQpDQp3aGVyZSBuLkNoYXJhY3Rlcl9uYW1lID0gJ01pY2hhZWwgU2NvdHQnIGFuZCBtLkNoYXJhY3Rlcl9uYW1lID0gJ0phbiBMZXZpbnNvbicNCmNyZWF0ZShuKS1bcjp3b3JrZWRfZm9yIHtzdGFydDonU2Vhc29uIDEnLGVuZDonU2Vhc29uIDMnfV0tPihtKQ0KY3JlYXRlKG4pLVtzOmRhdGVkIHtzdGFydDonU2Vhc29uIDInLGVuZDonU2Vhc29uIDQnfV0tPihtKQ0KcmV0dXJuKG4pLChtKSIgJT4lIGNhbGxfbmVvNGooY29uKQ0KYGBgDQojIyMjIyBSb3kgQW5kZXJzb24gLSBQYW0gQmVlc2x5DQpgYGB7ciByb3lfcGFtLCBtZXNzYWdlPUZBTFNFLCByZXN1bHRzPSdob2xkJ30NCiJtYXRjaChuKSwobSkNCndoZXJlIG4uQ2hhcmFjdGVyX25hbWUgPSAnUGFtIEJlZXNseScgYW5kIG0uQ2hhcmFjdGVyX25hbWUgPSAnUm95IEFuZGVyc29uJw0KY3JlYXRlKG4pLVtzOmVuZ2FnZWRfdG8ge3N0YXJ0OidTZWFzb24gMScsZW5kOidTZWFzb24gMid9XS0+KG0pDQpyZXR1cm4obiksKG0pIiAlPiUgY2FsbF9uZW80aihjb24pDQpgYGANCg0KIyMjIE1ldGhvZCAyIC0gSW1wb3J0IGZyb20gY3N2DQoNClRoaXMgbWV0aG9kIGVudGFpbHMgYnVpbGRpbmcgdGhlIGRhdGFiYXNlIGZyb20gYSBwcmUgZmlsbGVkICpjc3YqIGRvY3VtZW50LCBzdGljaGluZyB0b2dldGhlciBub2RlcywgZWRnZXMgYW5kIGluZm9ybWF0aW9uIHVzaW5nIGNzdiBkb2N1bWVudCBhbmQgY3lwaGVyIGNvbW1hbmRzLg0KDQojIyMgTWV0aG9kIDMgLSBJbXBvcnQgZnJvbSBKU09ODQoNClRoaXMgbWV0aG9kIGVudGFpbHMgYnVpbGRpbmcgdGhlIGRhdGFiYXNlIGZyb20gYSAqSlNPTiogZG9jdW1lbnQsIHdoZXJlIG5vZGVzLCBlZ2VzIGFuZCByZWxhdGlvbnNoaXBzIGFyZSBwcmVkZWZpbmVkIGFuZCBzdG9yZWQgaW4gYSBmb3JtYXQgbmF0aXZlIHRvIG5lbzRqLg0KDQojIyBFeHBvcnRpbmcgZ3JhcGhzDQoNCkNBTEwgYXBvYy5leHBvcnQuY3N2LmFsbCgiSjYuY3N2Iiwge30pIHdpbGwgZXhwb3J0IGEgbmVvNGogZ3JhcGggZGF0YWJhc2UsIGludG8gYSAuY3N2IGZpbGUuIA0KDQpDQUxMIGFwb2MuZXhwb3J0Lmpzb24uYWxsKCJKNi5KU09OIiwge30pd2lsbCBleHBvcnQgYSBuZW80aiBncmFwaCBkYXRhYmFzZSBpbnRvIGEgSlNPTiBkb2N1bWVudC4NCg0KSW4gdGhlIG5lbzRqLmNvbmYgZmlsZSwgdGhlIGZvbGxvd2luZyBsaW5lcyBtdXN0IGJlIGFkZGVkIHRvIGVuc3VyZSB0aGF0IHlvdSBjYW4gYm90aCBpbXBvcnQgYW5kIGV4cG9ydCBmaWxlcyB1c2luZyB0aGUgYXBvYyBjYWxsczoNCmBgYHt9DQphcG9jLmV4cG9ydC5maWxlLmVuYWJsZWQ9dHJ1ZQ0KYXBvYy5pbXBvcnQuZmlsZS5lbmFibGVkPXRydWUNCmBgYA0KDQpLZWVwIGluIG1pbmQgKGEgbGF0ZSBmaW5kKSB0aGF0IGVhY2ggZGF0YWJhc2UgdGhhdCB5b3UgY3JlYXRlIHdpdGggdGhlIG5lbzRqIGRlc2t0b3AgYXBwbGljYXRpb24sIGhhcyBpdHMgb3duIGNvbmZpZyBmaWxlIGFuZCB5b3UgbXVzdCB0aGVyZWZvcmUgY2hhbmdlIGl0IGZvciB0aGUgREIgaW5zdGFuY2UuICAoSSBoYXZlIG5vdCBzZWVuIGEgZ2xvYmFsIGNvbmZpZyBmaWxlLCBhcyBvZiB3cml0aW5nIHRoaXMgZ3VpZGUpLg0KDQpodHRwczovL3d3dy5nb29nbGUuY29tL3NlYXJjaD9xPWxvYWQrbG9jYWwranNvbitmaWxlK25lbzRqJm9xPWxvYWQrbG9jYWwranNvbitmaWxlK25lbzRqJmFxcz1jaHJvbWUuLjY5aTU3ajAuOTY0Nmoxajgmc291cmNlaWQ9Y2hyb21lJmllPVVURi04I2twdmFsYng9X040QllYdEQ1QjQyY19RYktrYkxRRHcxNA0KDQoNCnRoaXMgY3JlYXRlcyBhIHJlbGF0aW9uc2hpcCBiZXR3ZWVuIG4gYW5kIG0sIHdoZXJlIGFueW9uZSB3aXRoIGxvY2F0aW9uID0gJ3NjcmFudG9uIGJyYW5jaCcgd29ya3MgZm9yIG1pY2hhZWwgc2NvdHQNCg0KDQp0aGlzIGFkZHMgYW4gYXRycmlidXRlICdTdGF0ZScgdG8gZWFjaCBub2RlIHdoZXJlIGxvY2F0aW9uIGlzIHNjcmFudG9uIGJyYW5jaC4NCmBgYHtyIGV2YWw9RkFMU0UsIGluY2x1ZGU9RkFMU0V9DQptYXRjaChuKQ0KIHdoZXJlIG4uTG9jYXRpb24gPSAnU2NyYW50b24gQnJhbmNoJw0KIHNldCBuLlN0YXRlID0gJ1BBJw0KIHJldHVybihuKQ0KYGBgDQoNCg==</div>
 
 
 
