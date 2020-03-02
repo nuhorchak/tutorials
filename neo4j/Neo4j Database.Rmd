@@ -118,6 +118,8 @@ Please note, that although many relationships are captured, this is not an all i
 
 - Note - relationships, although defined by direction in the create statement, can inherentlybe travsersed in a bi-directional manner with cypher, so therefore 'if one implies the other' is true.
 
+- Note - the <> operator is the logical 'not' or '!' operator.
+
 ##### Work Relationships
 ```{r michael_boss1, message=FALSE, results='hold'}
 "match (n:Management),(m)
@@ -126,8 +128,12 @@ create (m)-[r:worked_for]->(n)
 return n,m" %>% call_neo4j(con)
 ```
 
+##### Additional relationship - late add to scranton branch
 ```{r michael_boss2, message=FALSE, results='hold'}
-"" %>% call_neo4j(con)
+"match (n:Management {Character_name: 'Michael Scott'}), (m:Sales)
+where m.Character_name = 'Andy Bernard'
+create(m)-[r:worked_for]->(n)
+return n,m" %>% call_neo4j(con)
 ```
 
 ##### Michael Scott - Jan Levinson
@@ -143,6 +149,36 @@ return(n),(m)" %>% call_neo4j(con)
 ```{r roy_pam, message=FALSE, results='hold'}
 "match(n),(m)
 where n.Character_name = 'Pam Beesly' and m.Character_name = 'Roy Anderson'
+create(n)-[s:engaged_to {start:'Season 1',end:'Season 2'}]->(m)
+return(n),(m)" %>% call_neo4j(con)
+```
+
+##### Angela Martin - Andy Bernard
+```{r angela_andy, message=FALSE, results='hold'}
+"match(n),(m)
+where n.Character_name = 'Angela Martin' and m.Character_name = 'Andy Bernard'
+create(n)-[s:dated {start:'Season 4',end:'Season 5'}]->(m)
+create(n)-[t:engaged_to {start:'Season 4',end:'Season 5'}]->(m)
+return(n),(m)" %>% call_neo4j(con)
+```
+
+##### Ryan Howard - Kelly Kapoor
+```{r ryan_kelly, message=FALSE, results='hold'}
+"match(n),(m)
+where n.Character_name = 'Ryan Howard' and m.Character_name = 'Kelly Kapoor'
+create(n)-[s:dated {start:'Season 1',end:'Season 9', frequency:'intermittent'}]->(m)
+return(n),(m)" %>% call_neo4j(con)
+```
+
+
+
+
+
+
+##### Jim Halpbert - Pam Beesly
+```{r jim_pam, message=FALSE, results='hold'}
+"match(n),(m)
+where n.Character_name = 'Pam Beesly' and m.Character_name = 'Jim Halpbert'
 create(n)-[s:engaged_to {start:'Season 1',end:'Season 2'}]->(m)
 return(n),(m)" %>% call_neo4j(con)
 ```
