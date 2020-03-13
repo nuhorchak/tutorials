@@ -7,3 +7,7 @@ This repo contains markdown tutorials created on the fly, while learning how to 
 ### Neo4j
 
 This was the documentation as I created a database and learned Cypher.
+
+### MongoDB
+
+This was the documentation created after the MongoDB workshop 

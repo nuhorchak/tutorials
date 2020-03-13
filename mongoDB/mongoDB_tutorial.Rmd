@@ -1,0 +1,28 @@
+---
+title: "MongoDB and the document database"
+author: "MAJ Nicholas Uhorchak"
+date: "3/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+this is the start of the mongoDB document
+
+i connected to the DB that i build in the cloud. 
+
+need to link that pdf document to this markdown.
+
+this defines the connection string to the mongbDB (see documentation),
+creates the connection object (an environment in variables) and then queries against the DB.
+```{r}
+library(mongolite)
+
+con <- 'mongodb+srv://workshop:workshop@workshop-memwm.mongodb.net/test?retryWrites=true&w=majority'
+mongolite::mongo('Restaurants', 'Workshop', con) -> restaurantDB
+restaurantDB$find('{}') -> all_data
+head(all_data)
+```
+
