@@ -1,8 +1,10 @@
 ---
-title: "Neo4j and R: A network of possibilities"
+title: 'Neo4j and R: A network of possibilities'
 author: "MAJ Nicholas Uhorchak"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 ## Introduction
 Self described as the "World's leading graph database, with native graph storage and processing," [neo4j](https://neo4j.com/) is a graph database, with its own native query language, Cypher. Neo4j is extremely flexible, as both nodes and relationships contain attributes in the form of JSON documents.   
@@ -33,7 +35,7 @@ con$ping()
 con$access()
 ```
 
-Now that a connection is established to the database, we can begin to use neo4j from R.  All future calls from R to the database will utilize 'call_neo4j(con)' to connect R to the DB using the connection string.
+Now that a connection is established to the database, we can begin to use neo4j from R.  All future calls from R to the database will utilize 'call_neo4j(con = con)' to connect R to the DB using the connection string.
 
 ### Method 1 - Manual 
 
@@ -49,64 +51,64 @@ We will begin by creating the main characters from the show.  For each character
 
 ##### Management
 ```{r management, message=FALSE, results='hold', tidy=TRUE}
-"create(:Management {Character_name: 'Michael Scott', Played_by: 'Steve Carrell', Gender: 'Male', Position: 'Regional Manager', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Management {Character_name: 'Michael Scott', Played_by: 'Steve Carrell', Gender: 'Male', Position: 'Regional Manager', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Management {Character_name: 'Pam Beesly', Played_by: 'Jenna Fischer', Gender: 'Female', Position: 'Receptionist', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Management {Character_name: 'Pam Beesly', Played_by: 'Jenna Fischer', Gender: 'Female', Position: 'Receptionist', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Management {Character_name: 'Bob Vance', Played_by: 'Robert Shaefer', Gender: 'Male', Position: 'Owner, Vance Refrigeration; Scranton Mob Boss(?)', Location: 'Scranton ', Company: 'Vance Refrigeration'})" %>% call_neo4j(con)
+"create(:Management {Character_name: 'Bob Vance', Played_by: 'Robert Shaefer', Gender: 'Male', Position: 'Owner, Vance Refrigeration; Scranton Mob Boss(?)', Location: 'Scranton ', Company: 'Vance Refrigeration'})" %>% call_neo4j(con = con)
 
-"create(:Management {Character_name: 'Jan Levinson', Played_by: 'Melora Hardin', Gender: 'Female', Position: 'VP, Regional Sales', Location: 'Northeast Region', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Management {Character_name: 'Jan Levinson', Played_by: 'Melora Hardin', Gender: 'Female', Position: 'VP, Regional Sales', Location: 'Northeast Region', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Management {Character_name: 'Erin Hannon', Played_by: 'Ellie Kemper', Gender: 'Female', Position: 'Receptionist', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Management {Character_name: 'Erin Hannon', Played_by: 'Ellie Kemper', Gender: 'Female', Position: 'Receptionist', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
 ##### Accounting
 ```{r accounting, message=FALSE, results='hold', tidy=TRUE}
-"create(:Accounting {Character_name: 'Angela Martin', Played_by: 'Angela Kinsey', Gender: 'Female', Position: 'Accountant', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Accounting {Character_name: 'Angela Martin', Played_by: 'Angela Kinsey', Gender: 'Female', Position: 'Accountant', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Accounting {Character_name: 'Kevin Malone', Played_by: 'Brian Bumgartner', Gender: 'Female', Position: 'Accountant', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Accounting {Character_name: 'Kevin Malone', Played_by: 'Brian Bumgartner', Gender: 'Female', Position: 'Accountant', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Accounting {Character_name: 'Oscar Matrinez', Played_by: 'Oscar Nunez', Gender: 'Male', Position: 'Accountant', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Accounting {Character_name: 'Oscar Matrinez', Played_by: 'Oscar Nunez', Gender: 'Male', Position: 'Accountant', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Accounting {Character_name: 'Stanley Hudson', Played_by: 'Robert R. Shafer', Gender: 'Male', Position: 'Accountant', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Accounting {Character_name: 'Stanley Hudson', Played_by: 'Robert R. Shafer', Gender: 'Male', Position: 'Accountant', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
 ##### Customer Service
 ```{r customer_service, message=FALSE, results='hold', tidy=TRUE}
-"create(:Customer_Service {Character_name: 'Kelly Kapoor', Played_by: 'Mindy Kaling', Gender: 'Female', Position: 'Customer service representative', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Customer_Service {Character_name: 'Kelly Kapoor', Played_by: 'Mindy Kaling', Gender: 'Female', Position: 'Customer service representative', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Customer_Service {Character_name: 'Meredith Palmer', Played_by: 'Kate Flannery', Gender: 'Female', Position: 'Supplier relations', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Customer_Service {Character_name: 'Meredith Palmer', Played_by: 'Kate Flannery', Gender: 'Female', Position: 'Supplier relations', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
 
 ##### Human Resources
 ```{r human_resources, message=FALSE, results='hold', tidy=TRUE}
-"create(:Human_Resources {Character_name: 'Toby Flenderson', Played_by: 'Paul Lieberstein', Gender: 'Male', Position: 'Human Resources representative', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Human_Resources {Character_name: 'Toby Flenderson', Played_by: 'Paul Lieberstein', Gender: 'Male', Position: 'Human Resources representative', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
 ##### Quality Assurance
 ```{r quality_assurance, message=FALSE, results='hold', tidy=TRUE}
-"create(:Quality_Assurance {Character_name: 'Creed Bratton', Played_by: 'Creed Bratton', Gender: 'Male', Position: 'Director, Quality Assurance', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Quality_Assurance {Character_name: 'Creed Bratton', Played_by: 'Creed Bratton', Gender: 'Male', Position: 'Director, Quality Assurance', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
 ##### Sales
 ```{r sales, message=FALSE, results='hold', tidy=TRUE}
-"create(:Sales {Character_name: 'Dwight Schrute', Played_by: 'Riann Wilson', Gender: 'Male', Position: 'Salesman and Assistant Regional Manager', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Sales {Character_name: 'Dwight Schrute', Played_by: 'Riann Wilson', Gender: 'Male', Position: 'Salesman and Assistant Regional Manager', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Sales {Character_name: 'Jim Halpbert', Played_by: 'John Krasinski', Gender: 'Male', Position: 'Salesman; Assistant Regional Manager', Location: 'Scranton Branch; Staford Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Sales {Character_name: 'Jim Halpbert', Played_by: 'John Krasinski', Gender: 'Male', Position: 'Salesman; Assistant Regional Manager', Location: 'Scranton Branch; Staford Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Sales {Character_name: 'Ryan Howard', Played_by: 'B.J. Novak', Gender: 'Male', Position: 'Salesman; VP Northeast Region', Location: 'Scranton Branch; Northeast Region', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Sales {Character_name: 'Ryan Howard', Played_by: 'B.J. Novak', Gender: 'Male', Position: 'Salesman; VP Northeast Region', Location: 'Scranton Branch; Northeast Region', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Sales {Character_name: 'Phyllis Vance', Played_by: 'Phyllis Smith', Gender: 'Female', Position: 'Saleswoman', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Sales {Character_name: 'Phyllis Vance', Played_by: 'Phyllis Smith', Gender: 'Female', Position: 'Saleswoman', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Sales {Character_name: 'Andy Bernard', Played_by: 'Ed Helms', Gender: 'Female', Position: 'Regional Director of Sales; Salesman', Location: 'Stamford Branch; Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Sales {Character_name: 'Andy Bernard', Played_by: 'Ed Helms', Gender: 'Female', Position: 'Regional Director of Sales; Salesman', Location: 'Stamford Branch; Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
 ##### supply
 ```{r supply, message=FALSE, results='hold', tidy=TRUE}
-"create(:Supply {Character_name: 'Darryl Philbin', Played_by: 'Craig Robinson', Gender: 'Male', Position: 'Warehouse Foreman', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Supply {Character_name: 'Darryl Philbin', Played_by: 'Craig Robinson', Gender: 'Male', Position: 'Warehouse Foreman', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 
-"create(:Supply {Character_name: 'Roy Anderson', Played_by: 'David Denman', Gender: 'Male', Position: 'Warehouse dock worker', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con)
+"create(:Supply {Character_name: 'Roy Anderson', Played_by: 'David Denman', Gender: 'Male', Position: 'Warehouse dock worker', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
 
@@ -125,7 +127,7 @@ Please note, that although many relationships are captured, this is not an all i
 "match (n:Management),(m)
 where n.Character_name = 'Michael Scott' and m.Location =~ 'Scranton Branch.*' and m.Character_name <> 'Michael Scott'
 create (m)-[r:worked_for]->(n)
-return n,m" %>% call_neo4j(con)
+return n,m" %>% call_neo4j(con = con)
 ```
 
 ##### Additional relationship - late add to scranton branch
@@ -133,7 +135,7 @@ return n,m" %>% call_neo4j(con)
 "match (n:Management {Character_name: 'Michael Scott'}), (m:Sales)
 where m.Character_name = 'Andy Bernard'
 create(m)-[r:worked_for]->(n)
-return n,m" %>% call_neo4j(con)
+return n,m" %>% call_neo4j(con = con)
 ```
 
 ##### Michael Scott - Jan Levinson
@@ -143,14 +145,14 @@ return n,m" %>% call_neo4j(con)
 where n.Character_name = 'Michael Scott' and m.Character_name = 'Jan Levinson'
 create(n)-[r:worked_for {start:'Season 1',end:'Season 3'}]->(m)
 create(n)-[s:dated {start:'Season 2',end:'Season 4'}]->(m)
-return(n),(m)" %>% call_neo4j(con)
+return(n),(m)" %>% call_neo4j(con = con)
 ```
 ##### Roy Anderson - Pam Beesly
 ```{r roy_pam, message=FALSE, results='hold'}
 "match(n),(m)
 where n.Character_name = 'Pam Beesly' and m.Character_name = 'Roy Anderson'
 create(n)-[s:engaged_to {start:'Season 1',end:'Season 2'}]->(m)
-return(n),(m)" %>% call_neo4j(con)
+return(n),(m)" %>% call_neo4j(con = con)
 ```
 
 ##### Angela Martin - Andy Bernard
@@ -159,7 +161,7 @@ return(n),(m)" %>% call_neo4j(con)
 where n.Character_name = 'Angela Martin' and m.Character_name = 'Andy Bernard'
 create(n)-[s:dated {start:'Season 4',end:'Season 5'}]->(m)
 create(n)-[t:engaged_to {start:'Season 4',end:'Season 5'}]->(m)
-return(n),(m)" %>% call_neo4j(con)
+return(n),(m)" %>% call_neo4j(con = con)
 ```
 
 ##### Ryan Howard - Kelly Kapoor
@@ -167,7 +169,7 @@ return(n),(m)" %>% call_neo4j(con)
 "match(n),(m)
 where n.Character_name = 'Ryan Howard' and m.Character_name = 'Kelly Kapoor'
 create(n)-[s:dated {start:'Season 1',end:'Season 9', frequency:'intermittent'}]->(m)
-return(n),(m)" %>% call_neo4j(con)
+return(n),(m)" %>% call_neo4j(con = con)
 ```
 
 ##### Andy Bernard - Erin Hannon
@@ -175,7 +177,7 @@ return(n),(m)" %>% call_neo4j(con)
 "match(n),(m)
 where n.Character_name = 'Andy Bernard' and m.Character_name = 'Erin Hannon'
 create(n)-[s:dated {start:'Season 6',end:'Season 9'}]->(m)
-return(n),(m)" %>% call_neo4j(con)
+return(n),(m)" %>% call_neo4j(con = con)
 ```
 
 ##### Kelly Kapoor - Darryl Philbin
@@ -183,7 +185,7 @@ return(n),(m)" %>% call_neo4j(con)
 "match (n),(m)
 where n.Character_name = 'Kelly Kapoor' and m.Character_name = 'Darryl Philbin'
 create (n)-[r:dated {start:'Season 4', end: 'Season 5'}]->(m)
-return n,m" %>% call_neo4j(con)
+return n,m" %>% call_neo4j(con = con)
 ```
 
 ##### Dwight Schrute - Angela Martin
@@ -193,7 +195,7 @@ return n,m" %>% call_neo4j(con)
 where n.Character_name = 'Dwight Schrute' and m.Character_name = 'Angela Martin'
 create(n)-[r:dated {start1:'Season 2', finish1:'Season 4', start2: 'Season 5', finish2: 'Season 5'}]->(m)
 create(n)-[s:engaged_to {start:'Season 9', finish:''}]->(m)
-return (n),(m)" %>% call_neo4j(con)
+return (n),(m)" %>% call_neo4j(con = con)
 ```
 
 ##### Phyllis Vance - Bob Vance
@@ -203,7 +205,7 @@ where n.Character_name = 'Phyllis Vance' and m.Character_name = 'Bob Vance'
 create(n)-[r:dated {start1:'Season 2', finish1:'Season 3'}]->(m)
 create(n)-[s:engaged_to {start:'Season 3', finish:'Season 3'}]->(m)
 create(n)-[t:married_to {start:'Season 3', finish:''}]->(m)
-return (n),(m)" %>% call_neo4j(con)
+return (n),(m)" %>% call_neo4j(con = con)
 ```
 
 ##### Jim Halpbert - Pam Beesly
@@ -213,7 +215,7 @@ where n.Character_name = 'Jim Halpbert' and m.Character_name = 'Pam Beesly'
 create(n)-[r:dated {start1:'Season 4', finish1:'Season 5'}]->(m)
 create(n)-[s:engaged_to {start:'Season 5', finish:'Season 6'}]->(m)
 create(n)-[t:married_to {start:'Season 6', finish:''}]->(m)
-return (n),(m)" %>% call_neo4j(con)
+return (n),(m)" %>% call_neo4j(con = con)
 ```
 
 ### Method 2 - Import from csv

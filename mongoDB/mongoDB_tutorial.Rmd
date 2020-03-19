@@ -1,28 +1,90 @@
 ---
-title: "MongoDB and the document database"
+title: "MongoDB: Web Scale!"
 author: "MAJ Nicholas Uhorchak"
-date: "3/13/2020"
-output: html_document
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, tidy = TRUE)
+library(tidyverse)
 ```
 
-this is the start of the mongoDB document
+## Pre-tutorial requirements
+This tutorial follows Labs 1 through 5 from the MongoDB teach session.  Please review and complete lab 1 and 2 at a minimum, and enesure that you have an active and populated database to complete the following.
 
-i connected to the DB that i build in the cloud. 
 
-need to link that pdf document to this markdown.
+## Connecting to your cloud database 
+With a live, populated database in the cloud...what then? 
 
-this defines the connection string to the mongbDB (see documentation),
-creates the connection object (an environment in variables) and then queries against the DB.
-```{r}
+Well, first we define the connection string that will allow us to connect to the database itself, and query.  For that, we use the R package 'mongolite'
+
+```{r connection, tidy=TRUE}
 library(mongolite)
 
 con <- 'mongodb+srv://workshop:workshop@workshop-memwm.mongodb.net/test?retryWrites=true&w=majority'
-mongolite::mongo('Restaurants', 'Workshop', con) -> restaurantDB
-restaurantDB$find('{}') -> all_data
-head(all_data)
+
 ```
 
+
+## Query the cloud database
+Once the connection is established, 'con' above, we can connect to the DB and create the environment against which queries are run. This connection connects to the 'Workshop' database and the 'restaurant' collection stored within it.
+
+For the connection to properly work, the IP address where you access the databse must be whitelisted in MongoDB Atlas cloud instance, (see labs 1-2).
+```{r environment}
+mongolite::mongo(collection = 'Restaurants', db = 'Workshop', url = con) -> restaurantDB
+
+```
+'restaurantDB' above, is an environment, stored within the R studio environment.  That environment contains a set of functions, accessed with the $ character, to perform necessary actions against the database connection. 
+
+Here we query, the restaurant collection from the database, executing the equivalent to 'SELECT * FROM *' from a relational database.  The empty set '{}' ensures that we query the entire collection.  
+```{r query}
+restaurantDB$find('{}') -> all_data
+tibble::glimpse(all_data)
+```
+
+What happens however, when we do not want to query the entire set and want to send specific query parameters to mongoDB?
+
+## Specific queries
+```{r smaller_query}
+restaurantDB$find('{"borough": "Staten Island", "cuisine":"Chinese"}') -> staten_island_chinese
+tibble::glimpse(staten_island_chinese)
+```
+
+Given your understanding of the database, it is easy to pass a query string to the database, but you must ensure that double quotations encase both portion of the query argument, otherwise you will reeive an error.  Single quotations are limited to the entire query being passed to the $find command.
+
+##Example query analysis
+Given the newly queried data, we can now perform operations as needed.  For this demonstration, we produce a quick mapping of these restaurants.
+
+The initial data returned from the database is stored in a list of two values of two numeric inputs, latitude and longitude.  It must be transformed prior to use.
+```{r transform_it, tidy=TRUE}
+
+tibble::enframe(staten_island_chinese$address$coord,name = 'name',value = 'value') %>% tidyr::unnest() %>% dplyr::group_by(name) %>% dplyr::mutate(key = c('long','lat')) %>% tidyr::pivot_wider(names_from  = key, values_from  = value) -> lat_longs
+
+staten_island_chinese %>% add_column(lat = lat_longs$lat) -> staten_island_chinese
+
+staten_island_chinese %>% add_column(long = lat_longs$long) -> staten_island_chinese
+```
+
+Mapping is then an easy combination of the lat/long combination above, and any other information you want displayed.  
+
+Although it is possible to create a googe could account and connect to the google maps API and use ggmap (https://www.littlemissdata.com/blog/maps), this alternate method utilizes the open street maps API to get a map without a google account.
+
+```{r map_it, tidy=TRUE}
+library(ggmap)
+
+location = c(min(staten_island_chinese$long), min(staten_island_chinese$lat), max(staten_island_chinese$long), max(staten_island_chinese$lat)) %>% as.numeric()
+staten_island <- get_map(location = location, source = 'osm')
+ggmap(staten_island) + geom_point(data = staten_island_chinese, aes(x = long, y = lat), size = 2) + geom_label(data = staten_island_chinese, position = 'nudge', aes(label = name, x = long+.001, y = lat + 0.001), hjust = 0)
+
+```
+
+## Lessons Learned
+
+- The mongoDB Atlas instance must be setup properly for this to work.
+- Queries and quotations marks and excape quotes matter
+- Because mongoDB is a JSON database, the return format DF/Tibble is not necessarily easy to work with in R
+- This is a powerful tool if we ever get it on the network and use it *properly*
+
+Enjoy.
