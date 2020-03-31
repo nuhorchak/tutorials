@@ -3,8 +3,6 @@ title: 'Neo4j and R: A network of possibilities'
 author: "MAJ Nicholas Uhorchak"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  html_document:
-    df_print: paged
   pdf_document:
     df_print: kable
 ---
@@ -58,8 +56,8 @@ Creating nodes using cypher is straightforward, however care must be taken to en
 
 We will begin by creating the main characters from the show.  For each character, the node label, n, will reference the major section where they work, and supporting information will be entered as properties.  For conformity, each node will be assigned the same set of properties.
 
-##### Management
-\hfill\break
+Management
+
 ```{r management, message=FALSE, results='hold', tidy=TRUE}
 "create(:Management {Character_name: 'Michael Scott', 
 Played_by: 'Steve Carrell', Gender: 'Male', 
@@ -87,8 +85,8 @@ Position: 'Receptionist',
 Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
-##### Accounting
-\hfill\break
+Accounting
+
 ```{r accounting, message=FALSE, results='hold', tidy=TRUE}
 "create(:Accounting {Character_name: 'Angela Martin', 
 Played_by: 'Angela Kinsey', Gender: 'Female', 
@@ -111,8 +109,8 @@ Position: 'Accountant',
 Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
-##### Customer Service
-\hfill\break
+Customer Service
+
 ```{r customer_service, message=FALSE, results='hold', tidy=TRUE}
 "create(:Customer_Service {Character_name: 'Kelly Kapoor', 
 Played_by: 'Mindy Kaling', Gender: 'Female', 
@@ -124,9 +122,8 @@ Played_by: 'Kate Flannery', Gender: 'Female',
 Position: 'Supplier relations', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
+Human Resources
 
-##### Human Resources
-\hfill\break
 ```{r human_resources, message=FALSE, results='hold', tidy=TRUE}
 "create(:Human_Resources {Character_name: 'Toby Flenderson', 
 Played_by: 'Paul Lieberstein', Gender: 'Male', 
@@ -134,16 +131,16 @@ Position: 'Human Resources representative',
 Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
-##### Quality Assurance
-\hfill\break
+Quality Assurance
+
 ```{r quality_assurance, message=FALSE, results='hold', tidy=TRUE}
 "create(:Quality_Assurance {Character_name: 'Creed Bratton', 
 Played_by: 'Creed Bratton', Gender: 'Male', 
 Position: 'Director, Quality Assurance', Location: 'Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
-##### Sales
-\hfill\break
+Sales
+
 ```{r sales, message=FALSE, results='hold', tidy=TRUE}
 "create(:Sales {Character_name: 'Dwight Schrute', 
 Played_by: 'Riann Wilson', Gender: 'Male', 
@@ -171,8 +168,8 @@ Position: 'Regional Director of Sales; Salesman',
 Location: 'Stamford Branch; Scranton Branch', Company: 'Dunder Mifflin'})" %>% call_neo4j(con = con)
 ```
 
-##### Supply
-\hfill\break
+Supply
+
 ```{r supply, message=FALSE, results='hold', tidy=TRUE}
 "create(:Supply {Character_name: 'Darryl Philbin', 
 Played_by: 'Craig Robinson', Gender: 'Male', 
@@ -197,8 +194,8 @@ Please note, that although many relationships are captured, this is not an all i
 
 - Note - the <> operator is the logical 'not' or '!' operator.
 
-##### Work Relationships
-\hfill\break
+Work Relationships
+
 ```{r michael_boss1, message=FALSE, results='hold'}
 "match (n:Management),(m)
 where n.Character_name = 'Michael Scott' and m.Location =~ 'Scranton Branch.*' and m.Character_name <> 'Michael Scott'
@@ -206,8 +203,8 @@ create (m)-[r:worked_for]->(n)
 return n,m" %>% call_neo4j(con = con)
 ```
 
-##### Additional relationship - late add to scranton branch
-\hfill\break
+Additional relationship - late add to scranton branch
+
 ```{r michael_boss2, message=FALSE, results='hold'}
 "match (n:Management {Character_name: 'Michael Scott'}), (m:Sales)
 where m.Character_name = 'Andy Bernard'
@@ -215,8 +212,8 @@ create(m)-[r:worked_for]->(n)
 return n,m" %>% call_neo4j(con = con)
 ```
 
-##### Michael Scott - Jan Levinson
-\hfill\break
+Michael Scott - Jan Levinson
+
 ```{r michael_jan, message=FALSE, results='hold'}
 "match(n:Management),(m:Management)
 where n.Character_name = 'Michael Scott' and m.Character_name = 'Jan Levinson'
@@ -224,8 +221,9 @@ create(n)-[r:worked_for {start:'Season 1',end:'Season 3'}]->(m)
 create(n)-[s:dated {start:'Season 2',end:'Season 4'}]->(m)
 return(n),(m)" %>% call_neo4j(con = con)
 ```
-##### Roy Anderson - Pam Beesly
-\hfill\break
+
+Roy Anderson - Pam Beesly
+
 ```{r roy_pam, message=FALSE, results='hold'}
 "match(n),(m)
 where n.Character_name = 'Pam Beesly' and m.Character_name = 'Roy Anderson'
@@ -233,8 +231,8 @@ create(n)-[s:engaged_to {start:'Season 1',end:'Season 2'}]->(m)
 return(n),(m)" %>% call_neo4j(con = con)
 ```
 
-##### Angela Martin - Andy Bernard
-\hfill\break
+Angela Martin - Andy Bernard
+
 ```{r angela_andy, message=FALSE, results='hold'}
 "match(n),(m)
 where n.Character_name = 'Angela Martin' and m.Character_name = 'Andy Bernard'
@@ -243,8 +241,8 @@ create(n)-[t:engaged_to {start:'Season 4',end:'Season 5'}]->(m)
 return(n),(m)" %>% call_neo4j(con = con)
 ```
 
-##### Ryan Howard - Kelly Kapoor
-\hfill\break
+Ryan Howard - Kelly Kapoor
+
 ```{r ryan_kelly, message=FALSE, results='hold'}
 "match(n),(m)
 where n.Character_name = 'Ryan Howard' and m.Character_name = 'Kelly Kapoor'
@@ -252,8 +250,8 @@ create(n)-[s:dated {start:'Season 1',end:'Season 9', frequency:'intermittent'}]-
 return(n),(m)" %>% call_neo4j(con = con)
 ```
 
-##### Andy Bernard - Erin Hannon
-\hfill\break
+Andy Bernard - Erin Hannon
+
 ```{r andy_erin, message=FALSE, results='hold'}
 "match(n),(m)
 where n.Character_name = 'Andy Bernard' and m.Character_name = 'Erin Hannon'
@@ -261,8 +259,8 @@ create(n)-[s:dated {start:'Season 6',end:'Season 9'}]->(m)
 return(n),(m)" %>% call_neo4j(con = con)
 ```
 
-##### Kelly Kapoor - Darryl Philbin
-\hfill\break
+Kelly Kapoor - Darryl Philbin
+
 ```{r kelly_darryl, message=FALSE, results='hold'}
 "match (n),(m)
 where n.Character_name = 'Kelly Kapoor' and m.Character_name = 'Darryl Philbin'
@@ -270,8 +268,8 @@ create (n)-[r:dated {start:'Season 4', end: 'Season 5'}]->(m)
 return n,m" %>% call_neo4j(con = con)
 ```
 
-##### Dwight Schrute - Angela Martin
-\hfill\break
+Dwight Schrute - Angela Martin
+
 - Note, when creating properties of a node or relationship, property names cannot be duplicitive, as doing so will overwrite the previous instance with the last one.
 
 ```{r dwight_angela, message=FALSE, results='hold'}
@@ -282,8 +280,8 @@ create(n)-[s:engaged_to {start:'Season 9', finish:''}]->(m)
 return (n),(m)" %>% call_neo4j(con = con)
 ```
 
-##### Phyllis Vance - Bob Vance
-\hfill\break
+Phyllis Vance - Bob Vance
+
 ```{r phyllis_bob, message=FALSE, results='hold'}
 "match(n),(m)
 where n.Character_name = 'Phyllis Vance' and m.Character_name = 'Bob Vance'
@@ -293,8 +291,8 @@ create(n)-[t:married_to {start:'Season 3', finish:''}]->(m)
 return (n),(m)" %>% call_neo4j(con = con)
 ```
 
-##### Jim Halpbert - Pam Beesly
-\hfill\break
+Jim Halpbert - Pam Beesly
+
 ```{r jim_pam, message=FALSE, results='hold'}
 "match(n),(m)
 where n.Character_name = 'Jim Halpbert' and m.Character_name = 'Pam Beesly'
@@ -303,32 +301,18 @@ create(n)-[s:engaged_to {start:'Season 5', finish:'Season 6'}]->(m)
 create(n)-[t:married_to {start:'Season 6', finish:''}]->(m)
 return (n),(m)" %>% call_neo4j(con = con)
 ```
-## Importing graphs
+
+## Exporting graphs
 \hfill\break
-In the neo4j.conf file, the following lines must be added to ensure that you can both import and export files using the apoc calls and specify the export directory:
+In the neo4j.conf file, the following lines must be added to ensure that you can export files using the apoc calls and specify the export directory:
 ```{}
 apoc.export.file.enabled=true
 apoc.import.file.enabled=true
-dbms.directories.import=C:/Users/NickUhorchak/OneDrive - SOFDS/Desktop
+dbms.directories.import=YOUR_EXPORT_DIRECTORY_HERE
 dbms.security.allow_csv_import_from_file_urls=true
 ```
 
 Keep in mind (a late find) that each database that you create with the neo4j desktop application, has its own config file and additional packages (APOC being one) and you must therefore change it for the DB instance.  (I have not seen a global config file, as of writing this guide).  Changes to the config file can be made through the Neo4j GUI, as well as adding [plugins](https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e).
-
-### Import from csv
-
-This method entails building the database from a pre filled *csv* document, stiching together nodes, edges and information using csv document and cypher commands.
-
-```{r}
-
-```
-
-
-### Import from JSON
-
-This method entails building the database from a *JSON* document, where nodes, eges and relationships are predefined and stored in a format native to neo4j.
-
-## Exporting graphs
 
 Exporting a graph to a csv file can be completed multiple ways, as documented [here.](https://neo4j.com/docs/labs/apoc/current/export/csv/)
 
@@ -338,7 +322,6 @@ CALL apoc.export.csv.all("markdown.csv", {}) will export a neo4j graph database,
 "CALL apoc.export.csv.all('markdown.csv', {})" %>% call_neo4j(con = con)
 ```
 
-
 CALL apoc.export.json.all("markdown.JSON", {})will export a neo4j graph database into a JSON document.  The arguments are apoc.export.csv.all(file,config), where "markdown.JSON" is the filename, and config is the "{}" empty bracket, instructing the selection of all elements in the database.
 
 ```{r}
@@ -347,3 +330,5 @@ CALL apoc.export.json.all("markdown.JSON", {})will export a neo4j graph database
 
 
 Note: If you have issues exporting a database to csv, some have found that you must create a new database, amend the config file and then re-run the procedure call.  Reference to this issue is [here](https://github.com/neo4j-contrib/neo4j-apoc-procedures/issues/1271)
+
+Note: Importing csv and JSON is possible, however not discussed given the wide variety of possible import structures.  Please refer to neo4j documenation regarding data import, as each circumstance is generally unique.

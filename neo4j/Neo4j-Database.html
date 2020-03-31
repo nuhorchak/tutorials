@@ -1669,9 +1669,7 @@ con$access()</code></pre>
 
 <p>Creating nodes using cypher is straightforward, however care must be taken to ensure that consistency between labels is ensured (case sensitivity). Cypher commands can be found <a href="https://neo4j.com/docs/cypher-refcard/current/">here</a>.</p>
 <p>We will begin by creating the main characters from the show. For each character, the node label, n, will reference the major section where they work, and supporting information will be entered as properties. For conformity, each node will be assigned the same set of properties.</p>
-<div id="management" class="section level5">
-<h5>Management</h5>
-
+<p>Management</p>
 <pre class="r"><code>&quot;create(:Management {Character_name: &#39;Michael Scott&#39;, 
 Played_by: &#39;Steve Carrell&#39;, Gender: &#39;Male&#39;, 
 Position: &#39;Regional Manager&#39;, Location: &#39;Scranton Branch&#39;, 
@@ -1696,10 +1694,7 @@ Location: &#39;Northeast Region&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; 
 Played_by: &#39;Ellie Kemper&#39;, Gender: &#39;Female&#39;, 
 Position: &#39;Receptionist&#39;, 
 Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="accounting" class="section level5">
-<h5>Accounting</h5>
-
+<p>Accounting</p>
 <pre class="r"><code>&quot;create(:Accounting {Character_name: &#39;Angela Martin&#39;, 
 Played_by: &#39;Angela Kinsey&#39;, Gender: &#39;Female&#39;, 
 Position: &#39;Accountant&#39;, 
@@ -1719,10 +1714,7 @@ Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %
 Played_by: &#39;Robert R. Shafer&#39;, Gender: &#39;Male&#39;, 
 Position: &#39;Accountant&#39;, 
 Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="customer-service" class="section level5">
-<h5>Customer Service</h5>
-
+<p>Customer Service</p>
 <pre class="r"><code>&quot;create(:Customer_Service {Character_name: &#39;Kelly Kapoor&#39;, 
 Played_by: &#39;Mindy Kaling&#39;, Gender: &#39;Female&#39;, 
 Position: &#39;Customer service representative&#39;, 
@@ -1731,25 +1723,16 @@ Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %
 &quot;create(:Customer_Service {Character_name: &#39;Meredith Palmer&#39;, 
 Played_by: &#39;Kate Flannery&#39;, Gender: &#39;Female&#39;, 
 Position: &#39;Supplier relations&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="human-resources" class="section level5">
-<h5>Human Resources</h5>
-
+<p>Human Resources</p>
 <pre class="r"><code>&quot;create(:Human_Resources {Character_name: &#39;Toby Flenderson&#39;, 
 Played_by: &#39;Paul Lieberstein&#39;, Gender: &#39;Male&#39;, 
 Position: &#39;Human Resources representative&#39;, 
 Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="quality-assurance" class="section level5">
-<h5>Quality Assurance</h5>
-
+<p>Quality Assurance</p>
 <pre class="r"><code>&quot;create(:Quality_Assurance {Character_name: &#39;Creed Bratton&#39;, 
 Played_by: &#39;Creed Bratton&#39;, Gender: &#39;Male&#39;, 
 Position: &#39;Director, Quality Assurance&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="sales" class="section level5">
-<h5>Sales</h5>
-
+<p>Sales</p>
 <pre class="r"><code>&quot;create(:Sales {Character_name: &#39;Dwight Schrute&#39;, 
 Played_by: &#39;Riann Wilson&#39;, Gender: &#39;Male&#39;, 
 Position: &#39;Salesman and Assistant Regional Manager&#39;, 
@@ -1774,10 +1757,7 @@ Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %
 Played_by: &#39;Ed Helms&#39;, Gender: &#39;Female&#39;, 
 Position: &#39;Regional Director of Sales; Salesman&#39;, 
 Location: &#39;Stamford Branch; Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="supply" class="section level5">
-<h5>Supply</h5>
-
+<p>Supply</p>
 <pre class="r"><code>&quot;create(:Supply {Character_name: &#39;Darryl Philbin&#39;, 
 Played_by: &#39;Craig Robinson&#39;, Gender: &#39;Male&#39;, 
 Position: &#39;Warehouse Foreman&#39;, 
@@ -1788,7 +1768,6 @@ Played_by: &#39;David Denman&#39;, Gender: &#39;Male&#39;,
 Position: &#39;Warehouse dock worker&#39;, 
 Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
-</div>
 <div id="create-relationships" class="section level4">
 <h4>Create Relationships</h4>
 
@@ -1798,75 +1777,49 @@ Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %
 <li><p>Note - relationships, although defined by direction in the create statement, can inherentlybe travsersed in a bi-directional manner with cypher, so therefore ‘if one implies the other’ is true. See <a href="https://graphaware.com/neo4j/2013/10/11/neo4j-bidirectional-relationships.html">this</a> for reference. This fact does not necessarily imply however, that some explicit definition (think call network) is not ever necessary.</p></li>
 <li><p>Note - the &lt;&gt; operator is the logical ‘not’ or ‘!’ operator.</p></li>
 </ul>
-<div id="work-relationships" class="section level5">
-<h5>Work Relationships</h5>
-
+<p>Work Relationships</p>
 <pre class="r"><code>&quot;match (n:Management),(m)
 where n.Character_name = &#39;Michael Scott&#39; and m.Location =~ &#39;Scranton Branch.*&#39; and m.Character_name &lt;&gt; &#39;Michael Scott&#39;
 create (m)-[r:worked_for]-&gt;(n)
 return n,m&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="additional-relationship---late-add-to-scranton-branch" class="section level5">
-<h5>Additional relationship - late add to scranton branch</h5>
-
+<p>Additional relationship - late add to scranton branch</p>
 <pre class="r"><code>&quot;match (n:Management {Character_name: &#39;Michael Scott&#39;}), (m:Sales)
 where m.Character_name = &#39;Andy Bernard&#39;
 create(m)-[r:worked_for]-&gt;(n)
 return n,m&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="michael-scott---jan-levinson" class="section level5">
-<h5>Michael Scott - Jan Levinson</h5>
-
+<p>Michael Scott - Jan Levinson</p>
 <pre class="r"><code>&quot;match(n:Management),(m:Management)
 where n.Character_name = &#39;Michael Scott&#39; and m.Character_name = &#39;Jan Levinson&#39;
 create(n)-[r:worked_for {start:&#39;Season 1&#39;,end:&#39;Season 3&#39;}]-&gt;(m)
 create(n)-[s:dated {start:&#39;Season 2&#39;,end:&#39;Season 4&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="roy-anderson---pam-beesly" class="section level5">
-<h5>Roy Anderson - Pam Beesly</h5>
-
+<p>Roy Anderson - Pam Beesly</p>
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Pam Beesly&#39; and m.Character_name = &#39;Roy Anderson&#39;
 create(n)-[s:engaged_to {start:&#39;Season 1&#39;,end:&#39;Season 2&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="angela-martin---andy-bernard" class="section level5">
-<h5>Angela Martin - Andy Bernard</h5>
-
+<p>Angela Martin - Andy Bernard</p>
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Angela Martin&#39; and m.Character_name = &#39;Andy Bernard&#39;
 create(n)-[s:dated {start:&#39;Season 4&#39;,end:&#39;Season 5&#39;}]-&gt;(m)
 create(n)-[t:engaged_to {start:&#39;Season 4&#39;,end:&#39;Season 5&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="ryan-howard---kelly-kapoor" class="section level5">
-<h5>Ryan Howard - Kelly Kapoor</h5>
-
+<p>Ryan Howard - Kelly Kapoor</p>
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Ryan Howard&#39; and m.Character_name = &#39;Kelly Kapoor&#39;
 create(n)-[s:dated {start:&#39;Season 1&#39;,end:&#39;Season 9&#39;, frequency:&#39;intermittent&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="andy-bernard---erin-hannon" class="section level5">
-<h5>Andy Bernard - Erin Hannon</h5>
-
+<p>Andy Bernard - Erin Hannon</p>
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Andy Bernard&#39; and m.Character_name = &#39;Erin Hannon&#39;
 create(n)-[s:dated {start:&#39;Season 6&#39;,end:&#39;Season 9&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="kelly-kapoor---darryl-philbin" class="section level5">
-<h5>Kelly Kapoor - Darryl Philbin</h5>
-
+<p>Kelly Kapoor - Darryl Philbin</p>
 <pre class="r"><code>&quot;match (n),(m)
 where n.Character_name = &#39;Kelly Kapoor&#39; and m.Character_name = &#39;Darryl Philbin&#39;
 create (n)-[r:dated {start:&#39;Season 4&#39;, end: &#39;Season 5&#39;}]-&gt;(m)
 return n,m&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="dwight-schrute---angela-martin" class="section level5">
-<h5>Dwight Schrute - Angela Martin</h5>
-
+<p>Dwight Schrute - Angela Martin</p>
 <ul>
 <li>Note, when creating properties of a node or relationship, property names cannot be duplicitive, as doing so will overwrite the previous instance with the last one.</li>
 </ul>
@@ -1875,20 +1828,14 @@ where n.Character_name = &#39;Dwight Schrute&#39; and m.Character_name = &#39;An
 create(n)-[r:dated {start1:&#39;Season 2&#39;, finish1:&#39;Season 4&#39;, start2: &#39;Season 5&#39;, finish2: &#39;Season 5&#39;}]-&gt;(m)
 create(n)-[s:engaged_to {start:&#39;Season 9&#39;, finish:&#39;&#39;}]-&gt;(m)
 return (n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="phyllis-vance---bob-vance" class="section level5">
-<h5>Phyllis Vance - Bob Vance</h5>
-
+<p>Phyllis Vance - Bob Vance</p>
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Phyllis Vance&#39; and m.Character_name = &#39;Bob Vance&#39;
 create(n)-[r:dated {start1:&#39;Season 2&#39;, finish1:&#39;Season 3&#39;}]-&gt;(m)
 create(n)-[s:engaged_to {start:&#39;Season 3&#39;, finish:&#39;Season 3&#39;}]-&gt;(m)
 create(n)-[t:married_to {start:&#39;Season 3&#39;, finish:&#39;&#39;}]-&gt;(m)
 return (n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-</div>
-<div id="jim-halpbert---pam-beesly" class="section level5">
-<h5>Jim Halpbert - Pam Beesly</h5>
-
+<p>Jim Halpbert - Pam Beesly</p>
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Jim Halpbert&#39; and m.Character_name = &#39;Pam Beesly&#39;
 create(n)-[r:dated {start1:&#39;Season 4&#39;, finish1:&#39;Season 5&#39;}]-&gt;(m)
@@ -1897,33 +1844,22 @@ create(n)-[t:married_to {start:&#39;Season 6&#39;, finish:&#39;&#39;}]-&gt;(m)
 return (n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
 </div>
-</div>
-<div id="importing-graphs" class="section level2">
-<h2>Importing graphs</h2>
-
-<p>In the neo4j.conf file, the following lines must be added to ensure that you can both import and export files using the apoc calls and specify the export directory:</p>
-<pre><code>apoc.export.file.enabled=true
-apoc.import.file.enabled=true
-dbms.directories.import=C:/Users/NickUhorchak/OneDrive - SOFDS/Desktop
-dbms.security.allow_csv_import_from_file_urls=true</code></pre>
-<p>Keep in mind (a late find) that each database that you create with the neo4j desktop application, has its own config file and additional packages (APOC being one) and you must therefore change it for the DB instance. (I have not seen a global config file, as of writing this guide). Changes to the config file can be made through the Neo4j GUI, as well as adding <a href="https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e">plugins</a>.</p>
-<div id="import-from-csv" class="section level3">
-<h3>Import from csv</h3>
-<p>This method entails building the database from a pre filled <em>csv</em> document, stiching together nodes, edges and information using csv document and cypher commands.</p>
-</div>
-<div id="import-from-json" class="section level3">
-<h3>Import from JSON</h3>
-<p>This method entails building the database from a <em>JSON</em> document, where nodes, eges and relationships are predefined and stored in a format native to neo4j.</p>
-</div>
-</div>
 <div id="exporting-graphs" class="section level2">
 <h2>Exporting graphs</h2>
+
+<p>In the neo4j.conf file, the following lines must be added to ensure that you can export files using the apoc calls and specify the export directory:</p>
+<pre><code>apoc.export.file.enabled=true
+apoc.import.file.enabled=true
+dbms.directories.import=YOUR_EXPORT_DIRECTORY_HERE
+dbms.security.allow_csv_import_from_file_urls=true</code></pre>
+<p>Keep in mind (a late find) that each database that you create with the neo4j desktop application, has its own config file and additional packages (APOC being one) and you must therefore change it for the DB instance. (I have not seen a global config file, as of writing this guide). Changes to the config file can be made through the Neo4j GUI, as well as adding <a href="https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e">plugins</a>.</p>
 <p>Exporting a graph to a csv file can be completed multiple ways, as documented <a href="https://neo4j.com/docs/labs/apoc/current/export/csv/">here.</a></p>
 <p>CALL apoc.export.csv.all(“markdown.csv”, {}) will export a neo4j graph database, into a .csv file. The arguments are apoc.export.csv.all(file,config), where “markdown.csv” is the filename, and config is the “{}” empty bracket, instructing the selection of all elements in the database.</p>
 <pre class="r"><code>&quot;CALL apoc.export.csv.all(&#39;markdown.csv&#39;, {})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 <p>CALL apoc.export.json.all(“markdown.JSON”, {})will export a neo4j graph database into a JSON document. The arguments are apoc.export.csv.all(file,config), where “markdown.JSON” is the filename, and config is the “{}” empty bracket, instructing the selection of all elements in the database.</p>
 <pre class="r"><code>&quot;CALL apoc.export.csv.all(&#39;markdown.JSON&#39;, {})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 <p>Note: If you have issues exporting a database to csv, some have found that you must create a new database, amend the config file and then re-run the procedure call. Reference to this issue is <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures/issues/1271">here</a></p>
+<p>Note: Importing csv and JSON is possible, however not discussed given the wide variety of possible import structures. Please refer to neo4j documenation regarding data import, as each circumstance is generally unique.</p>
 </div>
 
 
