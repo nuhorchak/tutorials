@@ -1,0 +1,54 @@
+"_id","_labels","Character_name","Company","Gender","Location","Played_by","Position","_start","_end","_type","end","finish","finish1","finish2","frequency","start","start1","start2"
+"0",":Management","Michael Scott","Dunder Mifflin","Male","Scranton Branch","Steve Carrell","Regional Manager",,,,,,,,,,,
+"1",":Management","Pam Beesly","Dunder Mifflin","Female","Scranton Branch","Jenna Fischer","Receptionist",,,,,,,,,,,
+"2",":Accounting","Stanley Hudson","Dunder Mifflin","Male","Scranton Branch","Robert R. Shafer","Accountant",,,,,,,,,,,
+"3",":Sales","Ryan Howard","Dunder Mifflin","Male","Scranton Branch; Northeast Region","B.J. Novak","Salesman; VP Northeast Region",,,,,,,,,,,
+"20",":Management","Bob Vance","Vance Refrigeration","Male","Scranton ","Robert Shaefer","Owner, Vance Refrigeration; Scranton Mob Boss(?)",,,,,,,,,,,
+"21",":Customer_Service","Kelly Kapoor","Dunder Mifflin","Female","Scranton Branch","Mindy Kaling","Customer service representative",,,,,,,,,,,
+"22",":Supply","Darryl Philbin","Dunder Mifflin","Male","Scranton Branch","Craig Robinson","Warehouse Foreman",,,,,,,,,,,
+"40",":Management","Jan Levinson","Dunder Mifflin","Female","Northeast Region","Melora Hardin","VP, Regional Sales",,,,,,,,,,,
+"41",":Customer_Service","Meredith Palmer","Dunder Mifflin","Female","Scranton Branch","Kate Flannery","Supplier relations",,,,,,,,,,,
+"42",":Sales","Andy Bernard","Dunder Mifflin","Female","Stamford Branch; Scranton Branch","Ed Helms","Regional Director of Sales; Salesman",,,,,,,,,,,
+"60",":Management","Erin Hannon","Dunder Mifflin","Female","Scranton Branch","Ellie Kemper","Receptionist",,,,,,,,,,,
+"61",":Human_Resources","Toby Flenderson","Dunder Mifflin","Male","Scranton Branch","Paul Lieberstein","Human Resources representative",,,,,,,,,,,
+"62",":Supply","Roy Anderson","Dunder Mifflin","Male","Scranton Branch","David Denman","Warehouse dock worker",,,,,,,,,,,
+"80",":Accounting","Angela Martin","Dunder Mifflin","Female","Scranton Branch","Angela Kinsey","Accountant",,,,,,,,,,,
+"81",":Sales","Phyllis Vance","Dunder Mifflin","Female","Scranton Branch","Phyllis Smith","Saleswoman",,,,,,,,,,,
+"100",":Accounting","Kevin Malone","Dunder Mifflin","Female","Scranton Branch","Brian Bumgartner","Accountant",,,,,,,,,,,
+"101",":Sales","Dwight Schrute","Dunder Mifflin","Male","Scranton Branch","Riann Wilson","Salesman and Assistant Regional Manager",,,,,,,,,,,
+"120",":Accounting","Oscar Matrinez","Dunder Mifflin","Male","Scranton Branch","Oscar Nunez","Accountant",,,,,,,,,,,
+"121",":Sales","Jim Halpbert","Dunder Mifflin","Male","Scranton Branch; Staford Branch","John Krasinski","Salesman; Assistant Regional Manager",,,,,,,,,,,
+"140",":Quality_Assurance","Creed Bratton","Dunder Mifflin","Male","Scranton Branch","Creed Bratton","Director, Quality Assurance",,,,,,,,,,,
+,,,,,,,,"1","0","worked_for","","","","","","","",""
+,,,,,,,,"2","0","worked_for","","","","","","","",""
+,,,,,,,,"3","0","worked_for","","","","","","","",""
+,,,,,,,,"21","0","worked_for","","","","","","","",""
+,,,,,,,,"22","0","worked_for","","","","","","","",""
+,,,,,,,,"41","0","worked_for","","","","","","","",""
+,,,,,,,,"60","0","worked_for","","","","","","","",""
+,,,,,,,,"61","0","worked_for","","","","","","","",""
+,,,,,,,,"62","0","worked_for","","","","","","","",""
+,,,,,,,,"80","0","worked_for","","","","","","","",""
+,,,,,,,,"81","0","worked_for","","","","","","","",""
+,,,,,,,,"100","0","worked_for","","","","","","","",""
+,,,,,,,,"101","0","worked_for","","","","","","","",""
+,,,,,,,,"120","0","worked_for","","","","","","","",""
+,,,,,,,,"121","0","worked_for","","","","","","","",""
+,,,,,,,,"140","0","worked_for","","","","","","","",""
+,,,,,,,,"81","20","dated","","","Season 3","","","","Season 2",""
+,,,,,,,,"81","20","engaged_to","","Season 3","","","","Season 3","",""
+,,,,,,,,"81","20","married_to","","","","","","Season 3","",""
+,,,,,,,,"42","0","worked_for","","","","","","","",""
+,,,,,,,,"101","80","dated","","","Season 4","Season 5","","","Season 2","Season 5"
+,,,,,,,,"101","80","engaged_to","","","","","","Season 9","",""
+,,,,,,,,"0","40","worked_for","Season 3","","","","","Season 1","",""
+,,,,,,,,"0","40","dated","Season 4","","","","","Season 2","",""
+,,,,,,,,"121","1","dated","","","Season 5","","","","Season 4",""
+,,,,,,,,"121","1","engaged_to","","Season 6","","","","Season 5","",""
+,,,,,,,,"121","1","married_to","","","","","","Season 6","",""
+,,,,,,,,"1","62","engaged_to","Season 2","","","","","Season 1","",""
+,,,,,,,,"80","42","dated","Season 5","","","","","Season 4","",""
+,,,,,,,,"80","42","engaged_to","Season 5","","","","","Season 4","",""
+,,,,,,,,"3","21","dated","Season 9","","","","intermittent","Season 1","",""
+,,,,,,,,"42","60","dated","Season 9","","","","","Season 6","",""
+,,,,,,,,"21","22","dated","Season 5","","","","","Season 4","",""

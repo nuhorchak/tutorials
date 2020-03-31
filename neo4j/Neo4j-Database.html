@@ -1635,7 +1635,7 @@ summary {
 
 <h1 class="title toc-ignore">Neo4j and R: A network of possibilities</h1>
 <h4 class="author">MAJ Nicholas Uhorchak</h4>
-<h4 class="date">17 March, 2020</h4>
+<h4 class="date">31 March, 2020</h4>
 
 </div>
 
@@ -1644,9 +1644,6 @@ summary {
 <h2>Introduction</h2>
 <p>Self described as the “World’s leading graph database, with native graph storage and processing,” <a href="https://neo4j.com/">neo4j</a> is a graph database, with its own native query language, Cypher. Neo4j is extremely flexible, as both nodes and relationships contain attributes in the form of JSON documents.</p>
 <p>Neo4j provides great tutorials <a href="https://neo4j.com/graphacademy/online-training/">here</a> and <a href="https://neo4j-rstats.github.io/user-guide/">here</a>, as well as <a href="https://neo4j.com/blog/dark-side-neo4j-worst-practices/">worst practices</a> guide from their website. Although these tutorials are great references, users shouls familiarize themselves with both database and graph network basics prior to delveing deep into this demo.</p>
-</div>
-<div id="creating-a-database-in-r" class="section level2">
-<h2>Creating a database in R</h2>
 <pre class="r"><code>library(neo4r)
 library(magrittr)</code></pre>
 <p>For this project, a blank database was created using the neo4j desktop client (add graph function from the neo4j GUI). Once created, the ‘Start’ button must be clicked to move the database to an active state.</p>
@@ -1659,160 +1656,142 @@ library(magrittr)</code></pre>
 <pre class="r"><code># Connect to Neo4J
 
 con &lt;- neo4j_api$new(url = &quot;http://localhost:7474/&quot;, user = &quot;neo4j&quot;, password = &quot;markdown&quot;)
-con$ping()</code></pre>
-<pre><code>## [1] 200</code></pre>
-<pre class="r"><code>con$access()</code></pre>
-<pre><code>## $url
-## [1] &quot;http://localhost:7474&quot;
-## 
-## $user
-## [1] &quot;neo4j&quot;</code></pre>
+con$ping()
+con$access()</code></pre>
 <p>Now that a connection is established to the database, we can begin to use neo4j from R. All future calls from R to the database will utilize ‘call_neo4j(con = con)’ to connect R to the DB using the connection string.</p>
-<div id="method-1---manual" class="section level3">
-<h3>Method 1 - Manual</h3>
+</div>
+<div id="manual-creation-of-a-database" class="section level2">
+<h2>Manual creation of a database</h2>
 <p>This method entails building the database from <em>scratch</em>, using cypher queries to build both nodes and edges.</p>
 <p>Everything in neo4j is stored as a JSON document, both nodes and edges. Creating a database from scratch entials defining nodes, edges and all the properties for each that will be contained in the respective JSON documents.</p>
 <div id="create-nodes" class="section level4">
 <h4>Create nodes</h4>
+
 <p>Creating nodes using cypher is straightforward, however care must be taken to ensure that consistency between labels is ensured (case sensitivity). Cypher commands can be found <a href="https://neo4j.com/docs/cypher-refcard/current/">here</a>.</p>
 <p>We will begin by creating the main characters from the show. For each character, the node label, n, will reference the major section where they work, and supporting information will be entered as properties. For conformity, each node will be assigned the same set of properties.</p>
 <div id="management" class="section level5">
 <h5>Management</h5>
-<pre class="r"><code>&quot;create(:Management {Character_name: &#39;Michael Scott&#39;, Played_by: &#39;Steve Carrell&#39;, Gender: &#39;Male&#39;, Position: &#39;Regional Manager&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
 
-&quot;create(:Management {Character_name: &#39;Pam Beesly&#39;, Played_by: &#39;Jenna Fischer&#39;, Gender: &#39;Female&#39;, Position: &#39;Receptionist&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+<pre class="r"><code>&quot;create(:Management {Character_name: &#39;Michael Scott&#39;, 
+Played_by: &#39;Steve Carrell&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Regional Manager&#39;, Location: &#39;Scranton Branch&#39;, 
+Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
 
-&quot;create(:Management {Character_name: &#39;Bob Vance&#39;, Played_by: &#39;Robert Shaefer&#39;, Gender: &#39;Male&#39;, Position: &#39;Owner, Vance Refrigeration; Scranton Mob Boss(?)&#39;, Location: &#39;Scranton &#39;, Company: &#39;Vance Refrigeration&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+&quot;create(:Management {Character_name: &#39;Pam Beesly&#39;, 
+Played_by: &#39;Jenna Fischer&#39;, Gender: &#39;Female&#39;, 
+Position: &#39;Receptionist&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
 
-&quot;create(:Management {Character_name: &#39;Jan Levinson&#39;, Played_by: &#39;Melora Hardin&#39;, Gender: &#39;Female&#39;, Position: &#39;VP, Regional Sales&#39;, Location: &#39;Northeast Region&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+&quot;create(:Management {Character_name: &#39;Bob Vance&#39;, 
+Played_by: &#39;Robert Shaefer&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Owner, Vance Refrigeration; Scranton Mob Boss(?)&#39;, 
+Location: &#39;Scranton &#39;, Company: &#39;Vance Refrigeration&#39;})&quot; %&gt;% call_neo4j(con = con)
 
-&quot;create(:Management {Character_name: &#39;Erin Hannon&#39;, Played_by: &#39;Ellie Kemper&#39;, Gender: &#39;Female&#39;, Position: &#39;Receptionist&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)</code></pre>
-<pre><code>## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
+&quot;create(:Management {Character_name: &#39;Jan Levinson&#39;, 
+Played_by: &#39;Melora Hardin&#39;, Gender: &#39;Female&#39;,
+Position: &#39;VP, Regional Sales&#39;, 
+Location: &#39;Northeast Region&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
+
+&quot;create(:Management {Character_name: &#39;Erin Hannon&#39;, 
+Played_by: &#39;Ellie Kemper&#39;, Gender: &#39;Female&#39;, 
+Position: &#39;Receptionist&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
 <div id="accounting" class="section level5">
 <h5>Accounting</h5>
-<pre class="r"><code>&quot;create(:Accounting {Character_name: &#39;Angela Martin&#39;, Played_by: &#39;Angela Kinsey&#39;, Gender: &#39;Female&#39;, Position: &#39;Accountant&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
 
-&quot;create(:Accounting {Character_name: &#39;Kevin Malone&#39;, Played_by: &#39;Brian Bumgartner&#39;, Gender: &#39;Female&#39;, Position: &#39;Accountant&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+<pre class="r"><code>&quot;create(:Accounting {Character_name: &#39;Angela Martin&#39;, 
+Played_by: &#39;Angela Kinsey&#39;, Gender: &#39;Female&#39;, 
+Position: &#39;Accountant&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
 
-&quot;create(:Accounting {Character_name: &#39;Oscar Matrinez&#39;, Played_by: &#39;Oscar Nunez&#39;, Gender: &#39;Male&#39;, Position: &#39;Accountant&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+&quot;create(:Accounting {Character_name: &#39;Kevin Malone&#39;, 
+Played_by: &#39;Brian Bumgartner&#39;, Gender: &#39;Female&#39;, 
+Position: &#39;Accountant&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
 
-&quot;create(:Accounting {Character_name: &#39;Stanley Hudson&#39;, Played_by: &#39;Robert R. Shafer&#39;, Gender: &#39;Male&#39;, Position: &#39;Accountant&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)</code></pre>
-<pre><code>## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
+&quot;create(:Accounting {Character_name: &#39;Oscar Matrinez&#39;, 
+Played_by: &#39;Oscar Nunez&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Accountant&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
+
+&quot;create(:Accounting {Character_name: &#39;Stanley Hudson&#39;, 
+Played_by: &#39;Robert R. Shafer&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Accountant&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
 <div id="customer-service" class="section level5">
 <h5>Customer Service</h5>
-<pre class="r"><code>&quot;create(:Customer_Service {Character_name: &#39;Kelly Kapoor&#39;, Played_by: &#39;Mindy Kaling&#39;, Gender: &#39;Female&#39;, Position: &#39;Customer service representative&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
 
-&quot;create(:Customer_Service {Character_name: &#39;Meredith Palmer&#39;, Played_by: &#39;Kate Flannery&#39;, Gender: &#39;Female&#39;, Position: &#39;Supplier relations&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)</code></pre>
-<pre><code>## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
+<pre class="r"><code>&quot;create(:Customer_Service {Character_name: &#39;Kelly Kapoor&#39;, 
+Played_by: &#39;Mindy Kaling&#39;, Gender: &#39;Female&#39;, 
+Position: &#39;Customer service representative&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
+
+&quot;create(:Customer_Service {Character_name: &#39;Meredith Palmer&#39;, 
+Played_by: &#39;Kate Flannery&#39;, Gender: &#39;Female&#39;, 
+Position: &#39;Supplier relations&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
 <div id="human-resources" class="section level5">
 <h5>Human Resources</h5>
-<pre class="r"><code>&quot;create(:Human_Resources {Character_name: &#39;Toby Flenderson&#39;, Played_by: &#39;Paul Lieberstein&#39;, Gender: &#39;Male&#39;, Position: &#39;Human Resources representative&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)</code></pre>
-<pre><code>## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
+
+<pre class="r"><code>&quot;create(:Human_Resources {Character_name: &#39;Toby Flenderson&#39;, 
+Played_by: &#39;Paul Lieberstein&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Human Resources representative&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
 <div id="quality-assurance" class="section level5">
 <h5>Quality Assurance</h5>
-<pre class="r"><code>&quot;create(:Quality_Assurance {Character_name: &#39;Creed Bratton&#39;, Played_by: &#39;Creed Bratton&#39;, Gender: &#39;Male&#39;, Position: &#39;Director, Quality Assurance&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)</code></pre>
-<pre><code>## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
+
+<pre class="r"><code>&quot;create(:Quality_Assurance {Character_name: &#39;Creed Bratton&#39;, 
+Played_by: &#39;Creed Bratton&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Director, Quality Assurance&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
 <div id="sales" class="section level5">
 <h5>Sales</h5>
-<pre class="r"><code>&quot;create(:Sales {Character_name: &#39;Dwight Schrute&#39;, Played_by: &#39;Riann Wilson&#39;, Gender: &#39;Male&#39;, Position: &#39;Salesman and Assistant Regional Manager&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
 
-&quot;create(:Sales {Character_name: &#39;Jim Halpbert&#39;, Played_by: &#39;John Krasinski&#39;, Gender: &#39;Male&#39;, Position: &#39;Salesman; Assistant Regional Manager&#39;, Location: &#39;Scranton Branch; Staford Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+<pre class="r"><code>&quot;create(:Sales {Character_name: &#39;Dwight Schrute&#39;, 
+Played_by: &#39;Riann Wilson&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Salesman and Assistant Regional Manager&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
 
-&quot;create(:Sales {Character_name: &#39;Ryan Howard&#39;, Played_by: &#39;B.J. Novak&#39;, Gender: &#39;Male&#39;, Position: &#39;Salesman; VP Northeast Region&#39;, Location: &#39;Scranton Branch; Northeast Region&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+&quot;create(:Sales {Character_name: &#39;Jim Halpbert&#39;, 
+Played_by: &#39;John Krasinski&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Salesman; Assistant Regional Manager&#39;, 
+Location: &#39;Scranton Branch; Staford Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
 
-&quot;create(:Sales {Character_name: &#39;Phyllis Vance&#39;, Played_by: &#39;Phyllis Smith&#39;, Gender: &#39;Female&#39;, Position: &#39;Saleswoman&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+&quot;create(:Sales {Character_name: &#39;Ryan Howard&#39;, 
+Played_by: &#39;B.J. Novak&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Salesman; VP Northeast Region&#39;, 
+Location: &#39;Scranton Branch; Northeast Region&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
 
-&quot;create(:Sales {Character_name: &#39;Andy Bernard&#39;, Played_by: &#39;Ed Helms&#39;, Gender: &#39;Female&#39;, Position: &#39;Regional Director of Sales; Salesman&#39;, Location: &#39;Stamford Branch; Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)</code></pre>
-<pre><code>## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
+&quot;create(:Sales {Character_name: &#39;Phyllis Vance&#39;, 
+Played_by: &#39;Phyllis Smith&#39;, Gender: &#39;Female&#39;, 
+Position: &#39;Saleswoman&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
+
+&quot;create(:Sales {Character_name: &#39;Andy Bernard&#39;, 
+Played_by: &#39;Ed Helms&#39;, Gender: &#39;Female&#39;, 
+Position: &#39;Regional Director of Sales; Salesman&#39;, 
+Location: &#39;Stamford Branch; Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
 <div id="supply" class="section level5">
-<h5>supply</h5>
-<pre class="r"><code>&quot;create(:Supply {Character_name: &#39;Darryl Philbin&#39;, Played_by: &#39;Craig Robinson&#39;, Gender: &#39;Male&#39;, Position: &#39;Warehouse Foreman&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)
+<h5>Supply</h5>
 
-&quot;create(:Supply {Character_name: &#39;Roy Anderson&#39;, Played_by: &#39;David Denman&#39;, Gender: &#39;Male&#39;, Position: &#39;Warehouse dock worker&#39;, Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% 
-    call_neo4j(con = con)</code></pre>
-<pre><code>## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;
-## list()
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
+<pre class="r"><code>&quot;create(:Supply {Character_name: &#39;Darryl Philbin&#39;, 
+Played_by: &#39;Craig Robinson&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Warehouse Foreman&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)
+
+&quot;create(:Supply {Character_name: &#39;Roy Anderson&#39;, 
+Played_by: &#39;David Denman&#39;, Gender: &#39;Male&#39;, 
+Position: &#39;Warehouse dock worker&#39;, 
+Location: &#39;Scranton Branch&#39;, Company: &#39;Dunder Mifflin&#39;})&quot; %&gt;% call_neo4j(con = con)</code></pre>
 </div>
 </div>
 <div id="create-relationships" class="section level4">
 <h4>Create Relationships</h4>
+
 <p>Please note, that although many relationships are captured, this is not an all inclusive list, given the breadth of possibilities that exist. The selection captures enough relationhips to demonstrate the use of neo4j and neo4r.</p>
 <ul>
 <li><p>Note, similar to the creation of nodes, eges are also JSON documents, and can therefore store properties as well as labels.</p></li>
@@ -1821,206 +1800,73 @@ con$ping()</code></pre>
 </ul>
 <div id="work-relationships" class="section level5">
 <h5>Work Relationships</h5>
+
 <pre class="r"><code>&quot;match (n:Management),(m)
 where n.Character_name = &#39;Michael Scott&#39; and m.Location =~ &#39;Scranton Branch.*&#39; and m.Character_name &lt;&gt; &#39;Michael Scott&#39;
 create (m)-[r:worked_for]-&gt;(n)
 return n,m&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 16 x 6
-##    Company       Played_by    Position       Gender Character_name Location     
-##    &lt;chr&gt;         &lt;chr&gt;        &lt;chr&gt;          &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;        
-##  1 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-##  2 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-##  3 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-##  4 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-##  5 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-##  6 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-##  7 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-##  8 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-##  9 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 10 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 11 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 12 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 13 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 14 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 15 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 16 Dunder Miffl~ Steve Carre~ Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 
-## $m
-## # A tibble: 16 x 6
-##    Company   Played_by   Position          Gender Character_name Location       
-##    &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;             &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;          
-##  1 Dunder M~ Ellie Kemp~ Receptionist      Female Erin Hannon    Scranton Branch
-##  2 Dunder M~ Robert R. ~ Accountant        Male   Stanley Hudson Scranton Branch
-##  3 Dunder M~ Creed Brat~ Director, Qualit~ Male   Creed Bratton  Scranton Branch
-##  4 Dunder M~ Phyllis Sm~ Saleswoman        Female Phyllis Vance  Scranton Branch
-##  5 Dunder M~ Jenna Fisc~ Receptionist      Female Pam Beesly     Scranton Branch
-##  6 Dunder M~ Angela Kin~ Accountant        Female Angela Martin  Scranton Branch
-##  7 Dunder M~ Mindy Kali~ Customer service~ Female Kelly Kapoor   Scranton Branch
-##  8 Dunder M~ Riann Wils~ Salesman and Ass~ Male   Dwight Schrute Scranton Branch
-##  9 Dunder M~ Oscar Nunez Accountant        Male   Oscar Matrinez Scranton Branch
-## 10 Dunder M~ Paul Liebe~ Human Resources ~ Male   Toby Flenders~ Scranton Branch
-## 11 Dunder M~ B.J. Novak  Salesman; VP Nor~ Male   Ryan Howard    Scranton Branc~
-## 12 Dunder M~ David Denm~ Warehouse dock w~ Male   Roy Anderson   Scranton Branch
-## 13 Dunder M~ Brian Bumg~ Accountant        Female Kevin Malone   Scranton Branch
-## 14 Dunder M~ Kate Flann~ Supplier relatio~ Female Meredith Palm~ Scranton Branch
-## 15 Dunder M~ John Krasi~ Salesman; Assist~ Male   Jim Halpbert   Scranton Branc~
-## 16 Dunder M~ Craig Robi~ Warehouse Foreman Male   Darryl Philbin Scranton Branch
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="additional-relationship---late-add-to-scranton-branch" class="section level5">
 <h5>Additional relationship - late add to scranton branch</h5>
+
 <pre class="r"><code>&quot;match (n:Management {Character_name: &#39;Michael Scott&#39;}), (m:Sales)
 where m.Character_name = &#39;Andy Bernard&#39;
 create(m)-[r:worked_for]-&gt;(n)
 return n,m&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company       Played_by     Position       Gender Character_name Location     
-##   &lt;chr&gt;         &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;        
-## 1 Dunder Miffl~ Steve Carrell Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company    Played_by Position           Gender Character_name Location        
-##   &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;           
-## 1 Dunder Mi~ Ed Helms  Regional Director~ Female Andy Bernard   Stamford Branch~
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="michael-scott---jan-levinson" class="section level5">
 <h5>Michael Scott - Jan Levinson</h5>
+
 <pre class="r"><code>&quot;match(n:Management),(m:Management)
 where n.Character_name = &#39;Michael Scott&#39; and m.Character_name = &#39;Jan Levinson&#39;
 create(n)-[r:worked_for {start:&#39;Season 1&#39;,end:&#39;Season 3&#39;}]-&gt;(m)
 create(n)-[s:dated {start:&#39;Season 2&#39;,end:&#39;Season 4&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company       Played_by     Position       Gender Character_name Location     
-##   &lt;chr&gt;         &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;        
-## 1 Dunder Miffl~ Steve Carrell Regional Mana~ Male   Michael Scott  Scranton Bra~
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company       Played_by    Position        Gender Character_name Location     
-##   &lt;chr&gt;         &lt;chr&gt;        &lt;chr&gt;           &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;        
-## 1 Dunder Miffl~ Melora Hard~ VP, Regional S~ Female Jan Levinson   Northeast Re~
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="roy-anderson---pam-beesly" class="section level5">
 <h5>Roy Anderson - Pam Beesly</h5>
+
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Pam Beesly&#39; and m.Character_name = &#39;Roy Anderson&#39;
 create(n)-[s:engaged_to {start:&#39;Season 1&#39;,end:&#39;Season 2&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company        Played_by     Position     Gender Character_name Location      
-##   &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;         
-## 1 Dunder Mifflin Jenna Fischer Receptionist Female Pam Beesly     Scranton Bran~
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company      Played_by    Position          Gender Character_name Location    
-##   &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;             &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;       
-## 1 Dunder Miff~ David Denman Warehouse dock w~ Male   Roy Anderson   Scranton Br~
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="angela-martin---andy-bernard" class="section level5">
 <h5>Angela Martin - Andy Bernard</h5>
+
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Angela Martin&#39; and m.Character_name = &#39;Andy Bernard&#39;
 create(n)-[s:dated {start:&#39;Season 4&#39;,end:&#39;Season 5&#39;}]-&gt;(m)
 create(n)-[t:engaged_to {start:&#39;Season 4&#39;,end:&#39;Season 5&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company        Played_by     Position   Gender Character_name Location       
-##   &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;          
-## 1 Dunder Mifflin Angela Kinsey Accountant Female Angela Martin  Scranton Branch
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company    Played_by Position           Gender Character_name Location        
-##   &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;           
-## 1 Dunder Mi~ Ed Helms  Regional Director~ Female Andy Bernard   Stamford Branch~
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="ryan-howard---kelly-kapoor" class="section level5">
 <h5>Ryan Howard - Kelly Kapoor</h5>
+
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Ryan Howard&#39; and m.Character_name = &#39;Kelly Kapoor&#39;
 create(n)-[s:dated {start:&#39;Season 1&#39;,end:&#39;Season 9&#39;, frequency:&#39;intermittent&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company    Played_by  Position         Gender Character_name Location         
-##   &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;            &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;            
-## 1 Dunder Mi~ B.J. Novak Salesman; VP No~ Male   Ryan Howard    Scranton Branch;~
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company     Played_by   Position             Gender Character_name Location   
-##   &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;                &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;      
-## 1 Dunder Mif~ Mindy Kali~ Customer service re~ Female Kelly Kapoor   Scranton B~
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="andy-bernard---erin-hannon" class="section level5">
 <h5>Andy Bernard - Erin Hannon</h5>
+
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Andy Bernard&#39; and m.Character_name = &#39;Erin Hannon&#39;
 create(n)-[s:dated {start:&#39;Season 6&#39;,end:&#39;Season 9&#39;}]-&gt;(m)
 return(n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company    Played_by Position           Gender Character_name Location        
-##   &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;           
-## 1 Dunder Mi~ Ed Helms  Regional Director~ Female Andy Bernard   Stamford Branch~
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company        Played_by    Position     Gender Character_name Location       
-##   &lt;chr&gt;          &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;          
-## 1 Dunder Mifflin Ellie Kemper Receptionist Female Erin Hannon    Scranton Branch
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="kelly-kapoor---darryl-philbin" class="section level5">
 <h5>Kelly Kapoor - Darryl Philbin</h5>
+
 <pre class="r"><code>&quot;match (n),(m)
 where n.Character_name = &#39;Kelly Kapoor&#39; and m.Character_name = &#39;Darryl Philbin&#39;
 create (n)-[r:dated {start:&#39;Season 4&#39;, end: &#39;Season 5&#39;}]-&gt;(m)
 return n,m&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company     Played_by   Position             Gender Character_name Location   
-##   &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;                &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;      
-## 1 Dunder Mif~ Mindy Kali~ Customer service re~ Female Kelly Kapoor   Scranton B~
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company       Played_by     Position       Gender Character_name Location     
-##   &lt;chr&gt;         &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;        
-## 1 Dunder Miffl~ Craig Robins~ Warehouse For~ Male   Darryl Philbin Scranton Bra~
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="dwight-schrute---angela-martin" class="section level5">
 <h5>Dwight Schrute - Angela Martin</h5>
+
 <ul>
 <li>Note, when creating properties of a node or relationship, property names cannot be duplicitive, as doing so will overwrite the previous instance with the last one.</li>
 </ul>
@@ -2029,89 +1875,55 @@ where n.Character_name = &#39;Dwight Schrute&#39; and m.Character_name = &#39;An
 create(n)-[r:dated {start1:&#39;Season 2&#39;, finish1:&#39;Season 4&#39;, start2: &#39;Season 5&#39;, finish2: &#39;Season 5&#39;}]-&gt;(m)
 create(n)-[s:engaged_to {start:&#39;Season 9&#39;, finish:&#39;&#39;}]-&gt;(m)
 return (n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company     Played_by  Position              Gender Character_name Location   
-##   &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;                 &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;      
-## 1 Dunder Mif~ Riann Wil~ Salesman and Assista~ Male   Dwight Schrute Scranton B~
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company        Played_by     Position   Gender Character_name Location       
-##   &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;          
-## 1 Dunder Mifflin Angela Kinsey Accountant Female Angela Martin  Scranton Branch
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="phyllis-vance---bob-vance" class="section level5">
 <h5>Phyllis Vance - Bob Vance</h5>
+
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Phyllis Vance&#39; and m.Character_name = &#39;Bob Vance&#39;
 create(n)-[r:dated {start1:&#39;Season 2&#39;, finish1:&#39;Season 3&#39;}]-&gt;(m)
 create(n)-[s:engaged_to {start:&#39;Season 3&#39;, finish:&#39;Season 3&#39;}]-&gt;(m)
 create(n)-[t:married_to {start:&#39;Season 3&#39;, finish:&#39;&#39;}]-&gt;(m)
 return (n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company        Played_by     Position   Gender Character_name Location       
-##   &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;          
-## 1 Dunder Mifflin Phyllis Smith Saleswoman Female Phyllis Vance  Scranton Branch
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company      Played_by  Position               Gender Character_name Location 
-##   &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;    
-## 1 Vance Refri~ Robert Sh~ Owner, Vance Refriger~ Male   Bob Vance      &quot;Scranto~
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 <div id="jim-halpbert---pam-beesly" class="section level5">
 <h5>Jim Halpbert - Pam Beesly</h5>
+
 <pre class="r"><code>&quot;match(n),(m)
 where n.Character_name = &#39;Jim Halpbert&#39; and m.Character_name = &#39;Pam Beesly&#39;
 create(n)-[r:dated {start1:&#39;Season 4&#39;, finish1:&#39;Season 5&#39;}]-&gt;(m)
 create(n)-[s:engaged_to {start:&#39;Season 5&#39;, finish:&#39;Season 6&#39;}]-&gt;(m)
 create(n)-[t:married_to {start:&#39;Season 6&#39;, finish:&#39;&#39;}]-&gt;(m)
 return (n),(m)&quot; %&gt;% call_neo4j(con = con)</code></pre>
-<pre><code>## $n
-## # A tibble: 1 x 6
-##   Company    Played_by   Position          Gender Character_name Location       
-##   &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;             &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;          
-## 1 Dunder Mi~ John Krasi~ Salesman; Assist~ Male   Jim Halpbert   Scranton Branc~
-## 
-## $m
-## # A tibble: 1 x 6
-##   Company        Played_by     Position     Gender Character_name Location      
-##   &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;         
-## 1 Dunder Mifflin Jenna Fischer Receptionist Female Pam Beesly     Scranton Bran~
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;neo&quot;  &quot;neo&quot;  &quot;list&quot;</code></pre>
 </div>
 </div>
 </div>
-<div id="method-2---import-from-csv" class="section level3">
-<h3>Method 2 - Import from csv</h3>
+<div id="importing-graphs" class="section level2">
+<h2>Importing graphs</h2>
+
+<p>In the neo4j.conf file, the following lines must be added to ensure that you can both import and export files using the apoc calls and specify the export directory:</p>
+<pre><code>apoc.export.file.enabled=true
+apoc.import.file.enabled=true
+dbms.directories.import=C:/Users/NickUhorchak/OneDrive - SOFDS/Desktop
+dbms.security.allow_csv_import_from_file_urls=true</code></pre>
+<p>Keep in mind (a late find) that each database that you create with the neo4j desktop application, has its own config file and additional packages (APOC being one) and you must therefore change it for the DB instance. (I have not seen a global config file, as of writing this guide). Changes to the config file can be made through the Neo4j GUI, as well as adding <a href="https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e">plugins</a>.</p>
+<div id="import-from-csv" class="section level3">
+<h3>Import from csv</h3>
 <p>This method entails building the database from a pre filled <em>csv</em> document, stiching together nodes, edges and information using csv document and cypher commands.</p>
 </div>
-<div id="method-3---import-from-json" class="section level3">
-<h3>Method 3 - Import from JSON</h3>
+<div id="import-from-json" class="section level3">
+<h3>Import from JSON</h3>
 <p>This method entails building the database from a <em>JSON</em> document, where nodes, eges and relationships are predefined and stored in a format native to neo4j.</p>
 </div>
 </div>
 <div id="exporting-graphs" class="section level2">
 <h2>Exporting graphs</h2>
-<p>CALL apoc.export.csv.all(“J6.csv”, {}) will export a neo4j graph database, into a .csv file.</p>
-<p>CALL apoc.export.json.all(“J6.JSON”, {})will export a neo4j graph database into a JSON document.</p>
-<p>In the neo4j.conf file, the following lines must be added to ensure that you can both import and export files using the apoc calls:</p>
-<pre><code>apoc.export.file.enabled=true
-apoc.import.file.enabled=true</code></pre>
-<p>Keep in mind (a late find) that each database that you create with the neo4j desktop application, has its own config file and you must therefore change it for the DB instance. (I have not seen a global config file, as of writing this guide).</p>
-<p><a href="https://www.google.com/search?q=load+local+json+file+neo4j&amp;oq=load+local+json+file+neo4j&amp;aqs=chrome" class="uri">https://www.google.com/search?q=load+local+json+file+neo4j&amp;oq=load+local+json+file+neo4j&amp;aqs=chrome</a>..69i57j0.9646j1j8&amp;sourceid=chrome&amp;ie=UTF-8#kpvalbx=_N4BYXtD5B42c_QbKkbLQDw14</p>
-<p>this creates a relationship between n and m, where anyone with location = ‘scranton branch’ works for michael scott</p>
-<p>this adds an atrribute ‘State’ to each node where location is scranton branch.</p>
+<p>Exporting a graph to a csv file can be completed multiple ways, as documented <a href="https://neo4j.com/docs/labs/apoc/current/export/csv/">here.</a></p>
+<p>CALL apoc.export.csv.all(“markdown.csv”, {}) will export a neo4j graph database, into a .csv file. The arguments are apoc.export.csv.all(file,config), where “markdown.csv” is the filename, and config is the “{}” empty bracket, instructing the selection of all elements in the database.</p>
+<pre class="r"><code>&quot;CALL apoc.export.csv.all(&#39;markdown.csv&#39;, {})&quot; %&gt;% call_neo4j(con = con)</code></pre>
+<p>CALL apoc.export.json.all(“markdown.JSON”, {})will export a neo4j graph database into a JSON document. The arguments are apoc.export.csv.all(file,config), where “markdown.JSON” is the filename, and config is the “{}” empty bracket, instructing the selection of all elements in the database.</p>
+<pre class="r"><code>&quot;CALL apoc.export.csv.all(&#39;markdown.JSON&#39;, {})&quot; %&gt;% call_neo4j(con = con)</code></pre>
+<p>Note: If you have issues exporting a database to csv, some have found that you must create a new database, amend the config file and then re-run the procedure call. Reference to this issue is <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures/issues/1271">here</a></p>
 </div>
 
 
