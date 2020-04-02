@@ -12,7 +12,7 @@ library(tidyverse)
 ```
 
 ## Pre-tutorial requirements
-This tutorial follows Labs 1 through 5 from the MongoDB teach session.  Please review and complete lab 1 and 2 at a minimum, and enesure that you have an active and populated database to complete the following.
+This tutorial follows Labs 1 through 5 from the MongoDB teach session.  Please review and complete lab 1 and 2 at a minimum, and enesure that you have an active and populated database to complete the following.  Those tutorials are provided for your review in Teams.
 
 
 ## Connecting to your cloud database 
@@ -33,7 +33,8 @@ Once the connection is established, 'con' above, we can connect to the DB and cr
 
 For the connection to properly work, the IP address where you access the databse must be whitelisted in MongoDB Atlas cloud instance, (see labs 1-2).
 ```{r environment}
-mongolite::mongo(collection = 'Restaurants', db = 'Workshop', url = con) -> restaurantDB
+mongolite::mongo(collection = 'Restaurants', 
+                 db = 'Workshop', url = con) -> restaurantDB
 
 ```
 'restaurantDB' above, is an environment, stored within the R studio environment.  That environment contains a set of functions, accessed with the $ character, to perform necessary actions against the database connection. 
@@ -48,7 +49,8 @@ What happens however, when we do not want to query the entire set and want to se
 
 ## Specific queries
 ```{r smaller_query}
-restaurantDB$find('{"borough": "Staten Island", "cuisine":"Chinese"}') -> staten_island_chinese
+restaurantDB$find('{"borough": "Staten Island", 
+                  "cuisine":"Chinese"}') -> staten_island_chinese
 tibble::glimpse(staten_island_chinese)
 ```
 
@@ -74,7 +76,7 @@ Although it is possible to create a googe could account and connect to the googl
 ```{r map_it, tidy=TRUE}
 library(ggmap)
 
-location = c(min(staten_island_chinese$long), min(staten_island_chinese$lat), max(staten_island_chinese$long), max(staten_island_chinese$lat)) %>% as.numeric()
+location = c((min(staten_island_chinese$long)-0.005), (min(staten_island_chinese$lat)-0.005), (max(staten_island_chinese$long)+0.08), (max(staten_island_chinese$lat)+0.005)) %>% as.numeric()
 staten_island <- get_map(location = location, source = 'osm')
 ggmap(staten_island) + geom_point(data = staten_island_chinese, aes(x = long, y = lat), size = 2) + geom_label(data = staten_island_chinese, position = 'nudge', aes(label = name, x = long+.001, y = lat + 0.001), hjust = 0)
 
